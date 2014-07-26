@@ -17,17 +17,17 @@ func ToMap(in interface{}) (map[string]interface{}, error) {
 	out := make(map[string]interface{})
 
 	t := reflect.TypeOf(in)
+	v := reflect.ValueOf(in)
 
 	// if pointer get the underlying element≤
 	if t.Kind() == reflect.Ptr {
 		t = t.Elem()
+		v = v.Elem()
 	}
 
 	if t.Kind() != reflect.Struct {
 		return nil, ErrNotStruct
 	}
-
-	v := reflect.ValueOf(in)
 
 	for i := 0; i < t.NumField(); i++ {
 		field := t.Field(i)

@@ -1,6 +1,7 @@
 package structure
 
 import (
+	"fmt"
 	"reflect"
 	"testing"
 )
@@ -80,5 +81,33 @@ func TestToMap_Tag(t *testing.T) {
 			t.Errorf("ToMap should have the key %v", key)
 		}
 	}
+
+}
+
+func ExampleMap() {
+	type Server struct {
+		Name    string
+		ID      int32
+		Enabled bool
+	}
+
+	s := &Server{
+		Name:    "Arslan",
+		ID:      123456,
+		Enabled: true,
+	}
+
+	m, err := ToMap(s)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("%#v\n", m["Name"])
+	fmt.Printf("%#v\n", m["ID"])
+	fmt.Printf("%#v\n", m["Enabled"])
+	// Output:
+	// "Arslan"
+	// 123456
+	// true
 
 }
