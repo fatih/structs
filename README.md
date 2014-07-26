@@ -1,6 +1,6 @@
 # Structure [![GoDoc](https://godoc.org/github.com/fatih/structure?status.svg)](http://godoc.org/github.com/fatih/structure) [![Build Status](https://travis-ci.org/fatih/structure.svg)](https://travis-ci.org/fatih/structure)
 
-Structure contains various utilitis to work with Go structs.
+Structure contains various utilitis to work with Go (Golang) structs.
 
 ## Install
 
@@ -9,6 +9,7 @@ go get github.com/fatih/structure
 ```
 
 ## Example
+Below is an example that is converting a **struct** to a **map**
 
 ```go
 type Server struct {
