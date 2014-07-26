@@ -1,5 +1,4 @@
 # Structure [![GoDoc](https://godoc.org/github.com/fatih/structure?status.png)](http://godoc.org/github.com/fatih/structure) [![Build Status](https://travis-ci.org/fatih/structure.png)](https://travis-ci.org/fatih/structure)
-=========
 
 Structure contains various utilitis to work with Go structs.
 
@@ -24,13 +23,12 @@ s := &Server{
 	Enabled: true,
 }
 
-m, err := ToMap(s)
+m, err := structure.ToMap(s)
 if err != nil {
 	panic(err)
 }
 
 fmt.Printf("%#v", m)
 // Output: map[string]interface {}{"Name":"Arslan", "ID":123456, "Enabled":true}
-
 ```
 	
