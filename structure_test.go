@@ -6,6 +6,16 @@ import (
 	"testing"
 )
 
+func TestToMapNonStruct(t *testing.T) {
+	foo := []string{"foo"}
+
+	_, err := ToMap(foo)
+	if err == nil {
+		t.Error("ToMap shouldn't accept non struct types")
+	}
+
+}
+
 func TestToMap(t *testing.T) {
 	var T = struct {
 		A string

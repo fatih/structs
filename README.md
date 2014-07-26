@@ -1,4 +1,4 @@
-# Structure [![GoDoc](https://godoc.org/github.com/fatih/structure?status.png)](http://godoc.org/github.com/fatih/structure) [![Build Status](https://travis-ci.org/fatih/structure.png)](https://travis-ci.org/fatih/structure)
+# Structure [![GoDoc](https://godoc.org/github.com/fatih/structure?status.svg)](http://godoc.org/github.com/fatih/structure) [![Build Status](https://travis-ci.org/fatih/structure.svg)](https://travis-ci.org/fatih/structure)
 
 Structure contains various utilitis to work with Go structs.
 
@@ -8,7 +8,7 @@ Structure contains various utilitis to work with Go structs.
 go get github.com/fatih/structure
 ```
 
-## Examples
+## Example
 
 ```go
 type Server struct {
