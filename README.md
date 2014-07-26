@@ -9,7 +9,7 @@ go get github.com/fatih/structure
 ```
 
 ## Example
-Below is an example that is converting a **struct** to a **map**
+Below is an example which converts a **struct** to a **map**
 
 ```go
 type Server struct {
