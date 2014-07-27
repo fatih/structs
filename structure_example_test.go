@@ -15,10 +15,7 @@ func ExampleToMap() {
 		Enabled: true,
 	}
 
-	m, err := ToMap(s)
-	if err != nil {
-		panic(err)
-	}
+	m := ToMap(s)
 
 	fmt.Printf("%#v\n", m["Name"])
 	fmt.Printf("%#v\n", m["ID"])
@@ -43,10 +40,7 @@ func ExampleToMap_tags() {
 		ID:   789012,
 	}
 
-	m, err := ToMap(s)
-	if err != nil {
-		panic(err)
-	}
+	m := ToMap(s)
 
 	// access them by the custom tags defined above
 	fmt.Printf("%#v\n", m["server_name"])
@@ -72,10 +66,7 @@ func ExampleToSlice() {
 		Enabled: false,
 	}
 
-	m, err := ToSlice(s)
-	if err != nil {
-		panic(err)
-	}
+	m := ToSlice(s)
 
 	// note that the output is sorted according to the field names
 	fmt.Printf("%#v\n", m)

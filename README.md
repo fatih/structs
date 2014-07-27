@@ -31,10 +31,7 @@ s := &Server{
 Convert to a `map[string]interface{}`
 
 ```go
-m, err := structure.ToMap(s)
-if err != nil {
-	panic(err)
-}
+m := structure.ToMap(s)
 
 // prints: map[string]interface {}{"Name":"Arslan", "ID":123456, "Enabled":true}
 fmt.Printf("%#v", m)
@@ -46,10 +43,7 @@ Convert to a `[]interface{}`. Slice values are **sorted** by default according
 to the field names.
 
 ```go
-m, err := structure.ToSlice(s)
-if err != nil {
-	panic(err)
-}
+m := structure.ToSlice(s)
 
 // prints: []interface {}{true, 123456, "Arslan"}
 fmt.Printf("%#v", m)

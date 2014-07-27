@@ -8,11 +8,15 @@ import (
 func TestToMapNonStruct(t *testing.T) {
 	foo := []string{"foo"}
 
-	_, err := ToMap(foo)
-	if err == nil {
-		t.Error("ToMap shouldn't accept non struct types")
-	}
+	defer func() {
+		err := recover()
+		if err == nil {
+			t.Error("Passing a non struct into ToMap should panic")
+		}
+	}()
 
+	// this should panic. We are going to recover and and test it
+	_ = ToMap(foo)
 }
 
 func TestToMap(t *testing.T) {
@@ -26,10 +30,7 @@ func TestToMap(t *testing.T) {
 		C: true,
 	}
 
-	a, err := ToMap(T)
-	if err != nil {
-		t.Error(err)
-	}
+	a := ToMap(T)
 
 	if typ := reflect.TypeOf(a).Kind(); typ != reflect.Map {
 		t.Errorf("ToMap should return a map type, got: %v", typ)
@@ -69,19 +70,14 @@ func TestToMap_Tag(t *testing.T) {
 		C: true,
 	}
 
-	a, err := ToMap(T)
-	if err != nil {
-		t.Error(err)
-	}
+	a := ToMap(T)
 
 	inMap := func(key interface{}) bool {
 		for k := range a {
 			if reflect.DeepEqual(k, key) {
-
 				return true
 			}
 		}
-
 		return false
 	}
 
@@ -117,10 +113,7 @@ func TestToSlice(t *testing.T) {
 		C: true,
 	}
 
-	s, err := ToSlice(T)
-	if err != nil {
-		t.Error(err)
-	}
+	s := ToSlice(T)
 
 	inSlice := func(val interface{}) bool {
 		for _, v := range s {
@@ -128,7 +121,6 @@ func TestToSlice(t *testing.T) {
 				return true
 			}
 		}
-
 		return false
 	}
 

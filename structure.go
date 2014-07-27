@@ -2,19 +2,16 @@
 package structure
 
 import (
-	"errors"
 	"reflect"
 	"sort"
 )
 
-// ErrNotStruct is returned when the passed value is not a struct
-var ErrNotStruct = errors.New("not struct")
-
-// ToMap converts a struct to a map[string]interface{}. The default map key
-// string is the struct fieldname but this can be changed by defining a
-// "structure" tag key if needed. Note that only exported fields of a struct
-// can be accessed, non exported fields will be neglected.
-func ToMap(s interface{}) (map[string]interface{}, error) {
+// ToMap converts the given s struct to a map[string]interface{}. The default
+// map key names are the struct fieldnames but this can be changed by defining
+// a "structure" tag key if needed. Note that only exported fields of a struct
+// can be accessed, non exported fields will be neglected. It panics if s's
+// kind is not struct.
+func ToMap(s interface{}) map[string]interface{} {
 	out := make(map[string]interface{})
 
 	t := reflect.TypeOf(s)
@@ -27,7 +24,7 @@ func ToMap(s interface{}) (map[string]interface{}, error) {
 	}
 
 	if t.Kind() != reflect.Struct {
-		return nil, ErrNotStruct
+		panic("not struct")
 	}
 
 	for i := 0; i < t.NumField(); i++ {
@@ -48,17 +45,15 @@ func ToMap(s interface{}) (map[string]interface{}, error) {
 		out[name] = v.Field(i).Interface()
 	}
 
-	return out, nil
+	return out
 }
 
-// ToSlice converts a struct's field values to a []interface{}. Values are
-// inserted and sorted according to the field names. Note that only exported
-// fields of a struct can be accessed, non exported fields  will be neglected.
-func ToSlice(s interface{}) ([]interface{}, error) {
-	m, err := ToMap(s)
-	if err != nil {
-		return nil, err
-	}
+// ToSlice converts the given s struct's field values to a []interface{}.
+// Values are inserted and sorted according to the field names. Note that only
+// exported fields of a struct can be accessed, non exported fields  will be
+// neglected.  It panics if s's kind is not struct.
+func ToSlice(s interface{}) []interface{} {
+	m := ToMap(s)
 
 	keys := make([]string, len(m))
 	count := 0
@@ -75,8 +70,24 @@ func ToSlice(s interface{}) ([]interface{}, error) {
 		t[i] = m[key]
 	}
 
-	return t, nil
+	return t
 
+}
+
+// Fields returns a sorted slice of field names.
+func Fields(s interface{}) []string {
+	m := ToMap(s)
+
+	keys := make([]string, len(m))
+	count := 0
+	for k := range m {
+		keys[count] = k
+		count++
+	}
+
+	sort.Strings(keys)
+
+	return keys
 }
 
 // IsStruct returns true if the given variable is a struct or a pointer to
