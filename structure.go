@@ -49,3 +49,14 @@ func ToMap(in interface{}) (map[string]interface{}, error) {
 
 	return out, nil
 }
+
+// IsStruct returns true if the given variable is a struct or a pointer to
+// struct.
+func IsStruct(strct interface{}) bool {
+	t := reflect.TypeOf(strct)
+	if t.Kind() == reflect.Ptr {
+		t = t.Elem()
+	}
+
+	return t.Kind() == reflect.Struct
+}

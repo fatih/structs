@@ -92,3 +92,16 @@ func TestToMap_Tag(t *testing.T) {
 	}
 
 }
+
+func TestStruct(t *testing.T) {
+	var T = struct{}{}
+
+	if !IsStruct(T) {
+		t.Errorf("T should be a struct, got: %T", T)
+	}
+
+	if !IsStruct(&T) {
+		t.Errorf("T should be a struct, got: %T", T)
+	}
+
+}
