@@ -74,9 +74,14 @@ func ToSlice(s interface{}) []interface{} {
 }
 
 // IsValid returns true if all fields in a struct are initialized (non zero
-// value). A struct tag with the content of `structure:"-"` omits the checking
-// of field. Note that only exported fields of a struct can be accessed, non
-// exported fields  will be neglected. It panics if s's kind is not struct.
+// value). A struct tag with the content of "-" ignores the checking of that
+// particular field. Example:
+//
+//   // Field is ignored by this package.
+//   Field bool `structure:"-"`
+//
+// Note that only exported fields of a struct can be accessed, non exported
+// fields  will be neglected. It panics if s's kind is not struct.
 func IsValid(s interface{}) bool {
 	v := reflect.ValueOf(s)
 
