@@ -14,19 +14,18 @@ import (
 func ToMap(s interface{}) map[string]interface{} {
 	out := make(map[string]interface{})
 
-	t := reflect.TypeOf(s)
 	v := reflect.ValueOf(s)
 
 	// if pointer get the underlying element≤
-	if t.Kind() == reflect.Ptr {
-		t = t.Elem()
+	if v.Kind() == reflect.Ptr {
 		v = v.Elem()
 	}
 
-	if t.Kind() != reflect.Struct {
+	if v.Kind() != reflect.Struct {
 		panic("not struct")
 	}
 
+	t := v.Type()
 	for i := 0; i < t.NumField(); i++ {
 		field := t.Field(i)
 
@@ -72,6 +71,50 @@ func ToSlice(s interface{}) []interface{} {
 
 	return t
 
+}
+
+// IsValid returns true if all fields in a struct are initialized (non zero
+// value). A struct tag with the content of `structure:"-"` omits the checking
+// of field. Note that only exported fields of a struct can be accessed, non
+// exported fields  will be neglected. It panics if s's kind is not struct.
+func IsValid(s interface{}) bool {
+	v := reflect.ValueOf(s)
+
+	// if pointer get the underlying element≤
+	if v.Kind() == reflect.Ptr {
+		v = v.Elem()
+	}
+
+	if v.Kind() != reflect.Struct {
+		panic("not struct")
+	}
+
+	t := v.Type()
+	for i := 0; i < t.NumField(); i++ {
+		field := t.Field(i)
+
+		// we can't access the value of unexported fields
+		if field.PkgPath != "" {
+			continue
+		}
+
+		// don't check if it's omitted
+		if tag := field.Tag.Get("structure"); tag == "-" {
+			continue
+		}
+
+		// zero value of the given field, such as "" for string, 0 for int
+		zero := reflect.Zero(v.Field(i).Type()).Interface()
+
+		//  current value of the given field
+		current := v.Field(i).Interface()
+
+		if reflect.DeepEqual(current, zero) {
+			return false
+		}
+	}
+
+	return true
 }
 
 // Fields returns a sorted slice of field names. Note that only exported

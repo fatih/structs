@@ -167,3 +167,20 @@ func TestFields(t *testing.T) {
 		}
 	}
 }
+
+func TestIsValid(t *testing.T) {
+	var T = struct {
+		A string
+		B int
+		C bool `structure:"-"`
+		D []string
+	}{
+		A: "a-value",
+		B: 2,
+	}
+
+	ok := IsValid(T)
+	if ok {
+		t.Error("IsValid should return false because D is not initialized")
+	}
+}
