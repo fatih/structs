@@ -32,9 +32,20 @@ if err != nil {
 	panic(err)
 }
 
-fmt.Printf("%#v", m)
 // prints: map[string]interface {}{"Name":"Arslan", "ID":123456, "Enabled":true}
+fmt.Printf("%#v", m)
 ```
+
+```go
+// convert it to a []interface{}. Slice values are sorted according to the
+// field names.
+m, err := structure.ToSlice(s)
+if err != nil {
+	panic(err)
+}
+
+// prints: []interface {}{true, 123456, "Arslan"}
+fmt.Printf("%#v", m)
 
 ```go
 // check if it's a struct or a pointer to struct

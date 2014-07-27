@@ -58,3 +58,27 @@ func ExampleToMap_tags() {
 	// false
 
 }
+
+func ExampleToSlice() {
+	type Server struct {
+		Name    string
+		ID      int32
+		Enabled bool
+	}
+
+	s := &Server{
+		Name:    "Fatih",
+		ID:      135790,
+		Enabled: false,
+	}
+
+	m, err := ToSlice(s)
+	if err != nil {
+		panic(err)
+	}
+
+	// note that the output is sorted according to the field names
+	fmt.Printf("%#v\n", m)
+	// Output:
+	// []interface {}{false, 135790, "Fatih"}
+}

@@ -105,3 +105,36 @@ func TestStruct(t *testing.T) {
 	}
 
 }
+
+func TestToSlice(t *testing.T) {
+	var T = struct {
+		A string
+		B int
+		C bool
+	}{
+		A: "a-value",
+		B: 2,
+		C: true,
+	}
+
+	s, err := ToSlice(T)
+	if err != nil {
+		t.Error(err)
+	}
+
+	inSlice := func(val interface{}) bool {
+		for _, v := range s {
+			if reflect.DeepEqual(v, val) {
+				return true
+			}
+		}
+
+		return false
+	}
+
+	for _, val := range []interface{}{"a-value", 2, true} {
+		if !inSlice(val) {
+			t.Errorf("ToSlice should have the value %v", val)
+		}
+	}
+}

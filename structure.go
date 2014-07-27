@@ -4,6 +4,7 @@ package structure
 import (
 	"errors"
 	"reflect"
+	"sort"
 )
 
 // ErrNotStruct is returned when the passed value is not a struct
@@ -13,11 +14,11 @@ var ErrNotStruct = errors.New("not struct")
 // string is the struct fieldname but this can be changed by defining a
 // "structure" tag key if needed. Note that only exported fields of a struct
 // can be accessed, non exported fields will be neglected.
-func ToMap(in interface{}) (map[string]interface{}, error) {
+func ToMap(s interface{}) (map[string]interface{}, error) {
 	out := make(map[string]interface{})
 
-	t := reflect.TypeOf(in)
-	v := reflect.ValueOf(in)
+	t := reflect.TypeOf(s)
+	v := reflect.ValueOf(s)
 
 	// if pointer get the underlying element≤
 	if t.Kind() == reflect.Ptr {
@@ -50,10 +51,38 @@ func ToMap(in interface{}) (map[string]interface{}, error) {
 	return out, nil
 }
 
+// ToSlice converts a struct's field values to a []interface{}. Values are
+// inserted and sorted according to the field names. Note that only exported
+// fields of a struct can be accessed, non exported fields  will be neglected.
+func ToSlice(s interface{}) ([]interface{}, error) {
+	m, err := ToMap(s)
+	if err != nil {
+		return nil, err
+	}
+
+	keys := make([]string, len(m))
+	count := 0
+	for k := range m {
+		keys[count] = k
+		count++
+	}
+
+	sort.Strings(keys)
+
+	t := make([]interface{}, len(m))
+
+	for i, key := range keys {
+		t[i] = m[key]
+	}
+
+	return t, nil
+
+}
+
 // IsStruct returns true if the given variable is a struct or a pointer to
 // struct.
-func IsStruct(strct interface{}) bool {
-	t := reflect.TypeOf(strct)
+func IsStruct(s interface{}) bool {
+	t := reflect.TypeOf(s)
 	if t.Kind() == reflect.Ptr {
 		t = t.Elem()
 	}
