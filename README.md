@@ -28,7 +28,7 @@ s := &Server{
 
 #### ToMap()
 
-Convert to a `map[string]interface{}`
+Convert a struct to a `map[string]interface{}`
 
 ```go
 m := structure.ToMap(s)
@@ -39,13 +39,25 @@ fmt.Printf("%#v", m)
 
 #### ToSlice()
 
-Convert to a `[]interface{}`. Slice values are **sorted** by default according
-to the field names.
+Convert the values of a struct to a `[]interface{}`. Slice values are
+**sorted** by default according to the field names.
 
 ```go
 m := structure.ToSlice(s)
 
 // prints: []interface {}{true, 123456, "Arslan"}
+fmt.Printf("%#v", m)
+```
+
+#### Fields()
+
+Convert the fields of a struct to a `[]string`. Slice values are **sorted** by
+default according to the field names.
+
+```go
+m := structure.Fields(s)
+
+// prints: []string{"Enabled", "ID", "Name"}
 fmt.Printf("%#v", m)
 ```
 

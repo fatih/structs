@@ -1,6 +1,9 @@
 package structure
 
-import "fmt"
+import (
+	"fmt"
+	"time"
+)
 
 func ExampleToMap() {
 	type Server struct {
@@ -72,4 +75,25 @@ func ExampleToSlice() {
 	fmt.Printf("%#v\n", m)
 	// Output:
 	// []interface {}{false, 135790, "Fatih"}
+}
+
+func ExampleFields() {
+	type Access struct {
+		Name         string
+		LastAccessed time.Time
+		Number       int
+	}
+
+	s := &Access{
+		Name:         "Fatih",
+		LastAccessed: time.Now(),
+		Number:       1234567,
+	}
+
+	m := Fields(s)
+
+	// note that the output is sorted according to the field names
+	fmt.Printf("%#v\n", m)
+	// Output:
+	// []string{"LastAccessed", "Name", "Number"}
 }

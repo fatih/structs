@@ -115,6 +115,10 @@ func TestToSlice(t *testing.T) {
 
 	s := ToSlice(T)
 
+	if typ := reflect.TypeOf(s).Kind(); typ != reflect.Slice {
+		t.Errorf("ToSlice should return a slice type, got: %v", typ)
+	}
+
 	inSlice := func(val interface{}) bool {
 		for _, v := range s {
 			if reflect.DeepEqual(v, val) {
@@ -127,6 +131,39 @@ func TestToSlice(t *testing.T) {
 	for _, val := range []interface{}{"a-value", 2, true} {
 		if !inSlice(val) {
 			t.Errorf("ToSlice should have the value %v", val)
+		}
+	}
+}
+
+func TestFields(t *testing.T) {
+	var T = struct {
+		A string
+		B int
+		C bool
+	}{
+		A: "a-value",
+		B: 2,
+		C: true,
+	}
+
+	s := Fields(T)
+
+	if len(s) != 3 {
+		t.Errorf("Fields should return a slice of len 3, got: %d", len(s))
+	}
+
+	inSlice := func(val string) bool {
+		for _, v := range s {
+			if reflect.DeepEqual(v, val) {
+				return true
+			}
+		}
+		return false
+	}
+
+	for _, val := range []string{"A", "B", "C"} {
+		if !inSlice(val) {
+			t.Errorf("Fields should have the value %v", val)
 		}
 	}
 }

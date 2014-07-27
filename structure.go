@@ -74,7 +74,8 @@ func ToSlice(s interface{}) []interface{} {
 
 }
 
-// Fields returns a sorted slice of field names.
+// Fields returns a sorted slice of field names. Note that only exported
+// fields of a struct can be accessed, non exported fields  will be neglected.
 func Fields(s interface{}) []string {
 	m := ToMap(s)
 
