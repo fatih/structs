@@ -8,10 +8,11 @@ Structure contains various utilitis to work with Go (Golang) structs.
 go get github.com/fatih/structure
 ```
 
-## Examples
+## Usage and Examples
+
+Lets define and declare a struct
 
 ```go
-// Lets define and declare a struct
 type Server struct {
 	Name    string
 	ID      int32
@@ -25,8 +26,9 @@ s := &Server{
 }
 ```
 
+Convert it to a map[string]interface{}
+
 ```go
-// convert it to a map[string]interface{}
 m, err := structure.ToMap(s)
 if err != nil {
 	panic(err)
@@ -36,9 +38,10 @@ if err != nil {
 fmt.Printf("%#v", m)
 ```
 
+Convert to a `[]interface{}`. Slice values are **sorted** by default according
+to the field names.
+
 ```go
-// convert it to a []interface{}. Slice values are sorted according to the
-// field names.
 m, err := structure.ToSlice(s)
 if err != nil {
 	panic(err)
@@ -48,8 +51,9 @@ if err != nil {
 fmt.Printf("%#v", m)
 ```
 
+Check if it's a struct or a pointer to struct
+
 ```go
-// check if it's a struct or a pointer to struct
 if structure.IsStruct(s) {
     fmt.Println("s is a struct") 
 }
