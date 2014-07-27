@@ -9,9 +9,9 @@ go get github.com/fatih/structure
 ```
 
 ## Examples
-Below is an example which converts a **struct** to a **map**
 
 ```go
+// Lets define and declare a struct
 type Server struct {
 	Name    string
 	ID      int32
@@ -23,31 +23,21 @@ s := &Server{
 	ID:      123456,
 	Enabled: true,
 }
+```
 
+```go
+// convert it to a map[string]interface{}
 m, err := structure.ToMap(s)
 if err != nil {
 	panic(err)
 }
 
 fmt.Printf("%#v", m)
-// Output: map[string]interface {}{"Name":"Arslan", "ID":123456, "Enabled":true}
+// prints: map[string]interface {}{"Name":"Arslan", "ID":123456, "Enabled":true}
 ```
 
-Test if the given variable is a struct or not
-
 ```go
-type Server struct {
-	Name    string
-	ID      int32
-	Enabled bool
-}
-
-s := &Server{
-	Name:    "Arslan",
-	ID:      123456,
-	Enabled: true,
-}
-
+// check if it's a struct or a pointer to struct
 if structure.IsStruct(s) {
     fmt.Println("s is a struct") 
 }
