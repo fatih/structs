@@ -26,7 +26,7 @@ s := &Server{
 }
 ```
 
-Convert it to a map[string]interface{}
+Convert it to a `map[string]interface{}`
 
 ```go
 m, err := structure.ToMap(s)
