@@ -46,6 +46,7 @@ if err != nil {
 
 // prints: []interface {}{true, 123456, "Arslan"}
 fmt.Printf("%#v", m)
+```
 
 ```go
 // check if it's a struct or a pointer to struct
