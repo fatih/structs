@@ -26,7 +26,9 @@ s := &Server{
 }
 ```
 
-Convert it to a `map[string]interface{}`
+#### ToMap()
+
+Convert to a `map[string]interface{}`
 
 ```go
 m, err := structure.ToMap(s)
@@ -37,6 +39,8 @@ if err != nil {
 // prints: map[string]interface {}{"Name":"Arslan", "ID":123456, "Enabled":true}
 fmt.Printf("%#v", m)
 ```
+
+#### ToSlice()
 
 Convert to a `[]interface{}`. Slice values are **sorted** by default according
 to the field names.
@@ -50,6 +54,8 @@ if err != nil {
 // prints: []interface {}{true, 123456, "Arslan"}
 fmt.Printf("%#v", m)
 ```
+
+#### IsStruct()
 
 Check if it's a struct or a pointer to struct
 
