@@ -20,54 +20,34 @@ type Server struct {
 }
 
 s := &Server{
-	Name:    "Arslan",
+	Name:    "gopher",
 	ID:      123456,
 	Enabled: true,
 }
 ```
 
-#### Map()
-
-Convert a struct to a `map[string]interface{}`
-
 ```go
+// Convert a struct to a map[string]interface{}
+// => {"Name":"gopher", "ID":123456, "Enabled":true}
 m := structure.Map(s)
 
-// prints: {"Name":"Arslan", "ID":123456, "Enabled":true}
-fmt.Printf("%#v", m)
-```
+// Convert the values of a struct to a []interface{}
+// => [true, 123456, "gopher"]
+v := structure.Values(s)
 
-#### Values()
+// Convert the fields of a struct to a []string. 
+// => ["Enabled", "ID", "Name"]
+f := structure.Fields(s)
 
-Convert the values of a struct to a `[]interface{}`. Slice values are
-**sorted** by default according to the field names.
-
-```go
-m := structure.Values(s)
-
-// prints: [true, 123456, "Arslan"]
-fmt.Printf("%#v", m)
-```
-
-#### Fields()
-
-Convert the fields of a struct to a `[]string`. Slice values are **sorted** by
-default according to the field names.
-
-```go
-m := structure.Fields(s)
-
-// prints: ["Enabled", "ID", "Name"]
-fmt.Printf("%#v", m)
-```
-
-#### IsStruct()
-
-Check if it's a struct or a pointer to struct
-
-```go
-if structure.IsStruct(s) {
-    fmt.Println("s is a struct") 
+// Check if the fields of a struct is initialized or not.
+if structure.IsValid(s) {
+    fmt.Println("s is initialized")
 }
+
+// Check if it's a struct or a pointer to struct
+if structure.IsStruct(s) {
+    fmt.Println("s is a struct")
+}
+
 ```
-	
+
