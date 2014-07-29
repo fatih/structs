@@ -6,11 +6,22 @@ import (
 	"sort"
 )
 
-// ToMap converts the given s struct to a map[string]interface{}. The default
-// map key names are the struct fieldnames but this can be changed by defining
-// a "structure" tag key if needed. Note that only exported fields of a struct
-// can be accessed, non exported fields will be neglected. It panics if s's
-// kind is not struct.
+// ToMap converts the given s struct to a map[string]interface{}, where the
+// keys of the map are the field names and the values of the map the associated
+// values of the fields. The default key string is the struct field name but
+// can be changed in the struct field's tag value. The "structure" key in the
+// struct's field tag value is the key name. Example:
+//
+//   // Field appears in map as key "myName".
+//   Name string `structure:"myName"`
+//
+// A value with the content of "-" ignores that particular field. Example:
+//
+//   // Field is ignored by this package.
+//   Field bool `structure:"-"`
+//
+// Note that only exported fields of a struct can be accessed, non exported
+// fields will be neglected. It panics if s's kind is not struct.
 func ToMap(s interface{}) map[string]interface{} {
 	out := make(map[string]interface{})
 
@@ -36,8 +47,13 @@ func ToMap(s interface{}) map[string]interface{} {
 
 		name := field.Name
 
-		// override if the user passed a structure tag
+		// override if the user passed a structure tag value
+		// ignore if the user passed the "-" value
 		if tag := field.Tag.Get("structure"); tag != "" {
+			if tag == "-" {
+				continue
+			}
+
 			name = tag
 		}
 
@@ -48,9 +64,14 @@ func ToMap(s interface{}) map[string]interface{} {
 }
 
 // ToSlice converts the given s struct's field values to a []interface{}.
-// Values are inserted and sorted according to the field names. Note that only
-// exported fields of a struct can be accessed, non exported fields  will be
-// neglected.  It panics if s's kind is not struct.
+// Values are inserted and sorted according to the field names. A struct tag
+// with the content of "-" ignores the that particular field. Example:
+//
+//   // Field is ignored by this package.
+//   Field int `structure:"-"`
+//
+// Note that only exported fields of a struct can be accessed, non exported
+// fields  will be neglected.  It panics if s's kind is not struct.
 func ToSlice(s interface{}) []interface{} {
 	m := ToMap(s)
 
@@ -122,8 +143,14 @@ func IsValid(s interface{}) bool {
 	return true
 }
 
-// Fields returns a sorted slice of field names. Note that only exported
-// fields of a struct can be accessed, non exported fields  will be neglected.
+// Fields returns a sorted slice of field names. A struct tag with the content
+// of "-" ignores the checking of that particular field. Example:
+//
+//   // Field is ignored by this package.
+//   Field bool `structure:"-"`
+//
+// Note that only exported fields of a struct can be accessed, non exported
+// fields  will be neglected.
 func Fields(s interface{}) []string {
 	m := ToMap(s)
 

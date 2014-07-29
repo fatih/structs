@@ -183,4 +183,16 @@ func TestIsValid(t *testing.T) {
 	if ok {
 		t.Error("IsValid should return false because D is not initialized")
 	}
+
+	var X = struct {
+		A string
+		F *bool
+	}{
+		A: "a-value",
+	}
+
+	ok = IsValid(X)
+	if ok {
+		t.Error("IsValid should return false because F is not initialized")
+	}
 }
