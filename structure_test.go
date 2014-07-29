@@ -102,7 +102,7 @@ func TestStruct(t *testing.T) {
 
 }
 
-func TestToSlice(t *testing.T) {
+func TestValues(t *testing.T) {
 	var T = struct {
 		A string
 		B int
@@ -113,10 +113,10 @@ func TestToSlice(t *testing.T) {
 		C: true,
 	}
 
-	s := ToSlice(T)
+	s := Values(T)
 
 	if typ := reflect.TypeOf(s).Kind(); typ != reflect.Slice {
-		t.Errorf("ToSlice should return a slice type, got: %v", typ)
+		t.Errorf("Values should return a slice type, got: %v", typ)
 	}
 
 	inSlice := func(val interface{}) bool {
@@ -130,7 +130,7 @@ func TestToSlice(t *testing.T) {
 
 	for _, val := range []interface{}{"a-value", 2, true} {
 		if !inSlice(val) {
-			t.Errorf("ToSlice should have the value %v", val)
+			t.Errorf("Values should have the value %v", val)
 		}
 	}
 }

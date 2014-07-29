@@ -63,7 +63,7 @@ func Map(s interface{}) map[string]interface{} {
 	return out
 }
 
-// ToSlice converts the given s struct's field values to a []interface{}.
+// Values converts the given s struct's field values to a []interface{}.
 // Values are inserted and sorted according to the field names. A struct tag
 // with the content of "-" ignores the that particular field. Example:
 //
@@ -72,7 +72,7 @@ func Map(s interface{}) map[string]interface{} {
 //
 // Note that only exported fields of a struct can be accessed, non exported
 // fields  will be neglected.  It panics if s's kind is not struct.
-func ToSlice(s interface{}) []interface{} {
+func Values(s interface{}) []interface{} {
 	m := Map(s)
 
 	keys := make([]string, len(m))

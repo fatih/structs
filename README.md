@@ -33,19 +33,19 @@ Convert a struct to a `map[string]interface{}`
 ```go
 m := structure.Map(s)
 
-// prints: map[string]interface {}{"Name":"Arslan", "ID":123456, "Enabled":true}
+// prints: {"Name":"Arslan", "ID":123456, "Enabled":true}
 fmt.Printf("%#v", m)
 ```
 
-#### ToSlice()
+#### Values()
 
 Convert the values of a struct to a `[]interface{}`. Slice values are
 **sorted** by default according to the field names.
 
 ```go
-m := structure.ToSlice(s)
+m := structure.Values(s)
 
-// prints: []interface {}{true, 123456, "Arslan"}
+// prints: [true, 123456, "Arslan"]
 fmt.Printf("%#v", m)
 ```
 
@@ -57,7 +57,7 @@ default according to the field names.
 ```go
 m := structure.Fields(s)
 
-// prints: []string{"Enabled", "ID", "Name"}
+// prints: ["Enabled", "ID", "Name"]
 fmt.Printf("%#v", m)
 ```
 

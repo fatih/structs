@@ -56,7 +56,7 @@ func ExampleMap_tags() {
 
 }
 
-func ExampleToSlice() {
+func ExampleValues() {
 	type Server struct {
 		Name    string
 		ID      int32
@@ -69,12 +69,12 @@ func ExampleToSlice() {
 		Enabled: false,
 	}
 
-	m := ToSlice(s)
+	m := Values(s)
 
 	// note that the output is sorted according to the field names
-	fmt.Printf("%#v\n", m)
+	fmt.Printf("Values: %+v\n", m)
 	// Output:
-	// []interface {}{false, 135790, "Fatih"}
+	// Values: [false 135790 Fatih]
 }
 
 func ExampleFields() {
@@ -93,9 +93,9 @@ func ExampleFields() {
 	m := Fields(s)
 
 	// note that the output is sorted according to the field names
-	fmt.Printf("%#v\n", m)
+	fmt.Printf("Fields: %+v\n", m)
 	// Output:
-	// []string{"LastAccessed", "Name", "Number"}
+	// Fields: [LastAccessed Name Number]
 }
 
 func ExampleIsValid() {
