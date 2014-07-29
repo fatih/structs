@@ -97,3 +97,34 @@ func ExampleFields() {
 	// Output:
 	// []string{"LastAccessed", "Name", "Number"}
 }
+
+func ExampleIsValid() {
+	// Let's define an Access struct. Note that the "Enabled" field is not
+	// going to be checked because we added the "structure" tag to the field.
+	type Access struct {
+		Name         string
+		LastAccessed time.Time
+		Number       int
+		Enabled      bool `structure:"-"`
+	}
+
+	// Name and Number is not initialized.
+	a := &Access{
+		LastAccessed: time.Now(),
+	}
+	validA := IsValid(a)
+
+	// Name and Number is initialized.
+	b := &Access{
+		Name:         "Fatih",
+		LastAccessed: time.Now(),
+		Number:       12345,
+	}
+	validB := IsValid(b)
+
+	fmt.Printf("%#v\n", validA)
+	fmt.Printf("%#v\n", validB)
+	// Output:
+	// false
+	// true
+}
