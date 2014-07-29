@@ -26,12 +26,12 @@ s := &Server{
 }
 ```
 
-#### ToMap()
+#### Map()
 
 Convert a struct to a `map[string]interface{}`
 
 ```go
-m := structure.ToMap(s)
+m := structure.Map(s)
 
 // prints: map[string]interface {}{"Name":"Arslan", "ID":123456, "Enabled":true}
 fmt.Printf("%#v", m)

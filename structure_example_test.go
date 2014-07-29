@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-func ExampleToMap() {
+func ExampleMap() {
 	type Server struct {
 		Name    string
 		ID      int32
@@ -18,7 +18,7 @@ func ExampleToMap() {
 		Enabled: true,
 	}
 
-	m := ToMap(s)
+	m := Map(s)
 
 	fmt.Printf("%#v\n", m["Name"])
 	fmt.Printf("%#v\n", m["ID"])
@@ -30,7 +30,7 @@ func ExampleToMap() {
 
 }
 
-func ExampleToMap_tags() {
+func ExampleMap_tags() {
 	// Custom tags can change the map keys instead of using the fields name
 	type Server struct {
 		Name    string `structure:"server_name"`
@@ -43,7 +43,7 @@ func ExampleToMap_tags() {
 		ID:   789012,
 	}
 
-	m := ToMap(s)
+	m := Map(s)
 
 	// access them by the custom tags defined above
 	fmt.Printf("%#v\n", m["server_name"])

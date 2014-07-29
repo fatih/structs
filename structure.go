@@ -6,8 +6,8 @@ import (
 	"sort"
 )
 
-// ToMap converts the given s struct to a map[string]interface{}, where the
-// keys of the map are the field names and the values of the map the associated
+// Map converts the given s struct to a map[string]interface{}, where the keys
+// of the map are the field names and the values of the map the associated
 // values of the fields. The default key string is the struct field name but
 // can be changed in the struct field's tag value. The "structure" key in the
 // struct's field tag value is the key name. Example:
@@ -22,7 +22,7 @@ import (
 //
 // Note that only exported fields of a struct can be accessed, non exported
 // fields will be neglected. It panics if s's kind is not struct.
-func ToMap(s interface{}) map[string]interface{} {
+func Map(s interface{}) map[string]interface{} {
 	out := make(map[string]interface{})
 
 	v := reflect.ValueOf(s)
@@ -73,7 +73,7 @@ func ToMap(s interface{}) map[string]interface{} {
 // Note that only exported fields of a struct can be accessed, non exported
 // fields  will be neglected.  It panics if s's kind is not struct.
 func ToSlice(s interface{}) []interface{} {
-	m := ToMap(s)
+	m := Map(s)
 
 	keys := make([]string, len(m))
 	count := 0
@@ -152,7 +152,7 @@ func IsValid(s interface{}) bool {
 // Note that only exported fields of a struct can be accessed, non exported
 // fields  will be neglected.
 func Fields(s interface{}) []string {
-	m := ToMap(s)
+	m := Map(s)
 
 	keys := make([]string, len(m))
 	count := 0

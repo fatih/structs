@@ -5,21 +5,21 @@ import (
 	"testing"
 )
 
-func TestToMapNonStruct(t *testing.T) {
+func TestMapNonStruct(t *testing.T) {
 	foo := []string{"foo"}
 
 	defer func() {
 		err := recover()
 		if err == nil {
-			t.Error("Passing a non struct into ToMap should panic")
+			t.Error("Passing a non struct into Map should panic")
 		}
 	}()
 
 	// this should panic. We are going to recover and and test it
-	_ = ToMap(foo)
+	_ = Map(foo)
 }
 
-func TestToMap(t *testing.T) {
+func TestMap(t *testing.T) {
 	var T = struct {
 		A string
 		B int
@@ -30,15 +30,15 @@ func TestToMap(t *testing.T) {
 		C: true,
 	}
 
-	a := ToMap(T)
+	a := Map(T)
 
 	if typ := reflect.TypeOf(a).Kind(); typ != reflect.Map {
-		t.Errorf("ToMap should return a map type, got: %v", typ)
+		t.Errorf("Map should return a map type, got: %v", typ)
 	}
 
 	// we have three fields
 	if len(a) != 3 {
-		t.Errorf("ToMap should return a map of len 3, got: %d", len(a))
+		t.Errorf("Map should return a map of len 3, got: %d", len(a))
 	}
 
 	inMap := func(val interface{}) bool {
@@ -53,13 +53,13 @@ func TestToMap(t *testing.T) {
 
 	for _, val := range []interface{}{"a-value", 2, true} {
 		if !inMap(val) {
-			t.Errorf("ToMap should have the value %v", val)
+			t.Errorf("Map should have the value %v", val)
 		}
 	}
 
 }
 
-func TestToMap_Tag(t *testing.T) {
+func TestMap_Tag(t *testing.T) {
 	var T = struct {
 		A string `structure:"x"`
 		B int    `structure:"y"`
@@ -70,7 +70,7 @@ func TestToMap_Tag(t *testing.T) {
 		C: true,
 	}
 
-	a := ToMap(T)
+	a := Map(T)
 
 	inMap := func(key interface{}) bool {
 		for k := range a {
@@ -83,7 +83,7 @@ func TestToMap_Tag(t *testing.T) {
 
 	for _, key := range []string{"x", "y", "z"} {
 		if !inMap(key) {
-			t.Errorf("ToMap should have the key %v", key)
+			t.Errorf("Map should have the key %v", key)
 		}
 	}
 
