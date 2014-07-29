@@ -25,26 +25,9 @@ import (
 func Map(s interface{}) map[string]interface{} {
 	out := make(map[string]interface{})
 
-	v := reflect.ValueOf(s)
+	v, fields := strctInfo(s)
 
-	// if pointer get the underlying element≤
-	if v.Kind() == reflect.Ptr {
-		v = v.Elem()
-	}
-
-	if v.Kind() != reflect.Struct {
-		panic("not struct")
-	}
-
-	t := v.Type()
-	for i := 0; i < t.NumField(); i++ {
-		field := t.Field(i)
-
-		// we can't access the value of unexported fields
-		if field.PkgPath != "" {
-			continue
-		}
-
+	for i, field := range fields {
 		name := field.Name
 
 		// override if the user passed a structure tag value
@@ -104,26 +87,9 @@ func Values(s interface{}) []interface{} {
 // Note that only exported fields of a struct can be accessed, non exported
 // fields  will be neglected. It panics if s's kind is not struct.
 func IsValid(s interface{}) bool {
-	v := reflect.ValueOf(s)
+	v, fields := strctInfo(s)
 
-	// if pointer get the underlying element≤
-	if v.Kind() == reflect.Ptr {
-		v = v.Elem()
-	}
-
-	if v.Kind() != reflect.Struct {
-		panic("not struct")
-	}
-
-	t := v.Type()
-	for i := 0; i < t.NumField(); i++ {
-		field := t.Field(i)
-
-		// we can't access the value of unexported fields
-		if field.PkgPath != "" {
-			continue
-		}
-
+	for i, field := range fields {
 		// don't check if it's omitted
 		if tag := field.Tag.Get("structure"); tag == "-" {
 			continue
@@ -175,4 +141,35 @@ func IsStruct(s interface{}) bool {
 	}
 
 	return t.Kind() == reflect.Struct
+}
+
+// strctInfo returns the struct value and the exported struct fields for a
+// given s struct. This is a convenient helper method to avoid duplicate code
+// in some of the functions.
+func strctInfo(s interface{}) (reflect.Value, []reflect.StructField) {
+	v := reflect.ValueOf(s)
+
+	// if pointer get the underlying element≤
+	if v.Kind() == reflect.Ptr {
+		v = v.Elem()
+	}
+
+	if v.Kind() != reflect.Struct {
+		panic("not struct")
+	}
+
+	t := v.Type()
+
+	f := make([]reflect.StructField, t.NumField())
+
+	for i := 0; i < t.NumField(); i++ {
+		// we can't access the value of unexported fields
+		if t.Field(i).PkgPath != "" {
+			continue
+		}
+
+		f[i] = t.Field(i)
+	}
+
+	return v, f
 }
