@@ -1,6 +1,8 @@
 # Structure [![GoDoc](https://godoc.org/github.com/fatih/structure?status.svg)](http://godoc.org/github.com/fatih/structure) [![Build Status](https://travis-ci.org/fatih/structure.svg)](https://travis-ci.org/fatih/structure)
 
-Structure contains various utilitis to work with Go (Golang) structs.
+Structure contains various utilities to work with Go (Golang) structs.
+
+** WIP, Use with care until it's finished and announced **
 
 ## Install
 
