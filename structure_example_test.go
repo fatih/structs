@@ -97,3 +97,31 @@ func ExampleFields() {
 	// Output:
 	// []string{"LastAccessed", "Name", "Number"}
 }
+
+func ExampleIsValid() {
+	type Access struct {
+		Name         string
+		LastAccessed time.Time
+		Number       int
+	}
+
+	// Name and Number is not initialized.
+	a := &Access{
+		LastAccessed: time.Now(),
+	}
+	validA := IsValid(a)
+
+	// Name and Number is initialized.
+	b := &Access{
+		Name:         "Fatih",
+		LastAccessed: time.Now(),
+		Number:       12345,
+	}
+	validB := IsValid(b)
+
+	fmt.Printf("%#v\n", validA)
+	fmt.Printf("%#v\n", validB)
+	// Output:
+	// false
+	// true
+}
