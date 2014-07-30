@@ -129,7 +129,6 @@ func Fields(s interface{}) []string {
 
 	keys := make([]string, 0)
 	for i, field := range fields {
-
 		val := v.Field(i)
 		if val.Kind() == reflect.Struct {
 			// look out for embedded structs, and convert them to a

@@ -89,7 +89,7 @@ func TestMap_Tag(t *testing.T) {
 
 }
 
-func TestMap_Embedded(t *testing.T) {
+func TestMap_Nested(t *testing.T) {
 	type A struct {
 		Name string
 	}
@@ -99,6 +99,34 @@ func TestMap_Embedded(t *testing.T) {
 		A A
 	}
 	b := &B{A: a}
+
+	m := Map(b)
+
+	if typ := reflect.TypeOf(m).Kind(); typ != reflect.Map {
+		t.Errorf("Map should return a map type, got: %v", typ)
+	}
+
+	in, ok := m["A"].(map[string]interface{})
+	if !ok {
+		t.Error("Map nested structs is not available in the map")
+	}
+
+	if name := in["Name"].(string); name != "example" {
+		t.Error("Map nested struct's name field should give example, got: %s", name)
+	}
+}
+
+func TestMap_Anonymous(t *testing.T) {
+	type A struct {
+		Name string
+	}
+	a := A{Name: "example"}
+
+	type B struct {
+		A
+	}
+	b := &B{}
+	b.A = a
 
 	m := Map(b)
 
@@ -162,7 +190,7 @@ func TestValues(t *testing.T) {
 	}
 }
 
-func TestValues_Embedded(t *testing.T) {
+func TestValues_Nested(t *testing.T) {
 	type A struct {
 		Name string
 	}
@@ -173,6 +201,37 @@ func TestValues_Embedded(t *testing.T) {
 		C int
 	}
 	b := &B{A: a, C: 123}
+
+	s := Values(b)
+
+	inSlice := func(val interface{}) bool {
+		for _, v := range s {
+			if reflect.DeepEqual(v, val) {
+				return true
+			}
+		}
+		return false
+	}
+
+	for _, val := range []interface{}{"example", 123} {
+		if !inSlice(val) {
+			t.Errorf("Values should have the value %v", val)
+		}
+	}
+}
+
+func TestValues_Anonymous(t *testing.T) {
+	type A struct {
+		Name string
+	}
+	a := A{Name: "example"}
+
+	type B struct {
+		A
+		C int
+	}
+	b := &B{C: 123}
+	b.A = a
 
 	s := Values(b)
 
@@ -225,7 +284,7 @@ func TestFields(t *testing.T) {
 	}
 }
 
-func TestFields_Embedded(t *testing.T) {
+func TestFields_Nested(t *testing.T) {
 	type A struct {
 		Name string
 	}
@@ -236,6 +295,37 @@ func TestFields_Embedded(t *testing.T) {
 		C int
 	}
 	b := &B{A: a, C: 123}
+
+	s := Fields(b)
+
+	inSlice := func(val interface{}) bool {
+		for _, v := range s {
+			if reflect.DeepEqual(v, val) {
+				return true
+			}
+		}
+		return false
+	}
+
+	for _, val := range []interface{}{"Name", "A", "C"} {
+		if !inSlice(val) {
+			t.Errorf("Fields should have the value %v", val)
+		}
+	}
+}
+
+func TestFields_Anonymous(t *testing.T) {
+	type A struct {
+		Name string
+	}
+	a := A{Name: "example"}
+
+	type B struct {
+		A
+		C int
+	}
+	b := &B{C: 123}
+	b.A = a
 
 	s := Fields(b)
 
@@ -284,7 +374,7 @@ func TestIsValid(t *testing.T) {
 	}
 }
 
-func TestIsValid_Embedded(t *testing.T) {
+func TestIsValid_Nested(t *testing.T) {
 	type A struct {
 		Name string
 		D    string
@@ -301,7 +391,26 @@ func TestIsValid_Embedded(t *testing.T) {
 	if ok {
 		t.Error("IsValid should return false because D is not initialized")
 	}
+}
 
+func TestIsValid_Anonymous(t *testing.T) {
+	type A struct {
+		Name string
+		D    string
+	}
+	a := A{Name: "example"}
+
+	type B struct {
+		A
+		C int
+	}
+	b := &B{C: 123}
+	b.A = a
+
+	ok := IsValid(b)
+	if ok {
+		t.Error("IsValid should return false because D is not initialized")
+	}
 }
 
 func TestName(t *testing.T) {
