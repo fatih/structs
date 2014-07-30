@@ -89,6 +89,33 @@ func TestMap_Tag(t *testing.T) {
 
 }
 
+func TestMap_Embedded(t *testing.T) {
+	type A struct {
+		Name string
+	}
+	a := A{Name: "example"}
+
+	type B struct {
+		A A
+	}
+	b := &B{A: a}
+
+	m := Map(b)
+
+	if typ := reflect.TypeOf(m).Kind(); typ != reflect.Map {
+		t.Errorf("Map should return a map type, got: %v", typ)
+	}
+
+	in, ok := m["A"].(map[string]interface{})
+	if !ok {
+		t.Error("Embedded structs is not available in the map")
+	}
+
+	if name := in["Name"].(string); name != "example" {
+		t.Error("Embedded A struct's Name field should give example, got: %s", name)
+	}
+}
+
 func TestStruct(t *testing.T) {
 	var T = struct{}{}
 
@@ -135,6 +162,36 @@ func TestValues(t *testing.T) {
 	}
 }
 
+func TestValues_Embedded(t *testing.T) {
+	type A struct {
+		Name string
+	}
+	a := A{Name: "example"}
+
+	type B struct {
+		A A
+		C int
+	}
+	b := &B{A: a, C: 123}
+
+	s := Values(b)
+
+	inSlice := func(val interface{}) bool {
+		for _, v := range s {
+			if reflect.DeepEqual(v, val) {
+				return true
+			}
+		}
+		return false
+	}
+
+	for _, val := range []interface{}{"example", 123} {
+		if !inSlice(val) {
+			t.Errorf("Values should have the value %v", val)
+		}
+	}
+}
+
 func TestFields(t *testing.T) {
 	var T = struct {
 		A string
@@ -168,6 +225,36 @@ func TestFields(t *testing.T) {
 	}
 }
 
+func TestFields_Embedded(t *testing.T) {
+	type A struct {
+		Name string
+	}
+	a := A{Name: "example"}
+
+	type B struct {
+		A A
+		C int
+	}
+	b := &B{A: a, C: 123}
+
+	s := Fields(b)
+
+	inSlice := func(val interface{}) bool {
+		for _, v := range s {
+			if reflect.DeepEqual(v, val) {
+				return true
+			}
+		}
+		return false
+	}
+
+	for _, val := range []interface{}{"Name", "A", "C"} {
+		if !inSlice(val) {
+			t.Errorf("Fields should have the value %v", val)
+		}
+	}
+}
+
 func TestIsValid(t *testing.T) {
 	var T = struct {
 		A string
@@ -195,6 +282,26 @@ func TestIsValid(t *testing.T) {
 	if ok {
 		t.Error("IsValid should return false because F is not initialized")
 	}
+}
+
+func TestIsValid_Embedded(t *testing.T) {
+	type A struct {
+		Name string
+		D    string
+	}
+	a := A{Name: "example"}
+
+	type B struct {
+		A A
+		C int
+	}
+	b := &B{A: a, C: 123}
+
+	ok := IsValid(b)
+	if ok {
+		t.Error("IsValid should return false because D is not initialized")
+	}
+
 }
 
 func TestName(t *testing.T) {

@@ -26,6 +26,16 @@ func Map(s interface{}) map[string]interface{} {
 
 	for i, field := range fields {
 		name := field.Name
+		val := v.Field(i)
+
+		var finalVal interface{}
+		if val.Kind() == reflect.Struct {
+			// look out for embedded structs, and convert them to a
+			// map[string]interface{} too
+			finalVal = Map(val.Interface())
+		} else {
+			finalVal = val.Interface()
+		}
 
 		// override if the user passed a structure tag value
 		// ignore if the user passed the "-" value
@@ -33,7 +43,7 @@ func Map(s interface{}) map[string]interface{} {
 			name = tag
 		}
 
-		out[name] = v.Field(i).Interface()
+		out[name] = finalVal
 	}
 
 	return out
@@ -51,9 +61,18 @@ func Map(s interface{}) map[string]interface{} {
 func Values(s interface{}) []interface{} {
 	v, fields := strctInfo(s)
 
-	t := make([]interface{}, len(fields))
+	t := make([]interface{}, 0)
 	for i := range fields {
-		t[i] = v.Field(i).Interface()
+		val := v.Field(i)
+		if val.Kind() == reflect.Struct {
+			// look out for embedded structs, and convert them to a
+			// []interface{} to be added to the final values slice
+			for _, embeddedVal := range Values(val.Interface()) {
+				t = append(t, embeddedVal)
+			}
+		} else {
+			t = append(t, val.Interface())
+		}
 	}
 
 	return t
@@ -73,6 +92,16 @@ func IsValid(s interface{}) bool {
 	v, fields := strctInfo(s)
 
 	for i := range fields {
+		val := v.Field(i)
+		if val.Kind() == reflect.Struct {
+			ok := IsValid(val.Interface())
+			if !ok {
+				return false
+			}
+
+			continue
+		}
+
 		// zero value of the given field, such as "" for string, 0 for int
 		zero := reflect.Zero(v.Field(i).Type()).Interface()
 
@@ -96,11 +125,21 @@ func IsValid(s interface{}) bool {
 // Note that only exported fields of a struct can be accessed, non exported
 // fields  will be neglected. It panics if s's kind is not struct.
 func Fields(s interface{}) []string {
-	_, fields := strctInfo(s)
+	v, fields := strctInfo(s)
 
-	keys := make([]string, len(fields))
+	keys := make([]string, 0)
 	for i, field := range fields {
-		keys[i] = field.Name
+
+		val := v.Field(i)
+		if val.Kind() == reflect.Struct {
+			// look out for embedded structs, and convert them to a
+			// []string to be added to the final values slice
+			for _, embeddedVal := range Fields(val.Interface()) {
+				keys = append(keys, embeddedVal)
+			}
+		}
+
+		keys = append(keys, field.Name)
 	}
 
 	return keys
