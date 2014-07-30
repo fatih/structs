@@ -80,7 +80,7 @@ func Values(s interface{}) []interface{} {
 
 }
 
-// IsZero returns true if all fields in a struct are initialized (non zero
+// IsZero returns true if any field in a struct is not initialized (zero
 // value). A struct tag with the content of "-" ignores the checking of that
 // particular field. Example:
 //
@@ -96,8 +96,8 @@ func IsZero(s interface{}) bool {
 		val := v.Field(i)
 		if IsStruct(val.Interface()) {
 			ok := IsZero(val.Interface())
-			if !ok {
-				return false
+			if ok {
+				return true
 			}
 
 			continue
@@ -110,11 +110,11 @@ func IsZero(s interface{}) bool {
 		current := v.Field(i).Interface()
 
 		if reflect.DeepEqual(current, zero) {
-			return false
+			return true
 		}
 	}
 
-	return true
+	return false
 }
 
 // Fields returns a slice of field names. A struct tag with the content of "-"
@@ -170,6 +170,28 @@ func Name(s interface{}) string {
 	}
 
 	return t.Name()
+}
+
+// Has returns true if the given field name exists for the struct s. It panic's
+// if s's kind is not struct.
+func Has(s interface{}, fieldName string) bool {
+	v, fields := strctInfo(s)
+
+	for i, field := range fields {
+		val := v.Field(i)
+
+		if IsStruct(val.Interface()) {
+			if ok := Has(val.Interface(), fieldName); ok {
+				return true
+			}
+		}
+
+		if field.Name == fieldName {
+			return true
+		}
+	}
+
+	return false
 }
 
 // strctInfo returns the struct value and the exported struct fields for a

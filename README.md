@@ -45,8 +45,12 @@ f := structure.Fields(s)
 // => "Server"
 n := structure.Name(s)
 
+// Check if field name exists
+// => true
+n := structure.Has(s, "Enabled")
+
 // Check if the fields of a struct is initialized or not.
-if structure.IsZero(s) {
+if !structure.IsZero(s) {
     fmt.Println("s is initialized")
 }
 

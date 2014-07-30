@@ -110,7 +110,7 @@ func ExampleIsZero() {
 	a := &Access{
 		LastAccessed: time.Now(),
 	}
-	validA := IsZero(a)
+	isZeroA := IsZero(a)
 
 	// Name and Number is initialized.
 	b := &Access{
@@ -118,11 +118,31 @@ func ExampleIsZero() {
 		LastAccessed: time.Now(),
 		Number:       12345,
 	}
-	validB := IsZero(b)
+	isZeroB := IsZero(b)
 
-	fmt.Printf("%#v\n", validA)
-	fmt.Printf("%#v\n", validB)
+	fmt.Printf("%#v\n", isZeroA)
+	fmt.Printf("%#v\n", isZeroB)
 	// Output:
-	// false
 	// true
+	// false
+}
+
+func ExampleHas() {
+	type Access struct {
+		Name         string
+		LastAccessed time.Time
+		Number       int
+	}
+
+	s := &Access{
+		Name:         "Fatih",
+		LastAccessed: time.Now(),
+		Number:       1234567,
+	}
+
+	found := Has(s, "LastAccessed")
+
+	fmt.Printf("Has: %+v\n", found)
+	// Output:
+	// Has: true
 }
