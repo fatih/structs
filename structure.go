@@ -29,7 +29,8 @@ func Map(s interface{}) map[string]interface{} {
 		val := v.Field(i)
 
 		var finalVal interface{}
-		if val.Kind() == reflect.Struct {
+
+		if IsStruct(val.Interface()) {
 			// look out for embedded structs, and convert them to a
 			// map[string]interface{} too
 			finalVal = Map(val.Interface())
@@ -64,7 +65,7 @@ func Values(s interface{}) []interface{} {
 	t := make([]interface{}, 0)
 	for i := range fields {
 		val := v.Field(i)
-		if val.Kind() == reflect.Struct {
+		if IsStruct(val.Interface()) {
 			// look out for embedded structs, and convert them to a
 			// []interface{} to be added to the final values slice
 			for _, embeddedVal := range Values(val.Interface()) {
@@ -93,7 +94,7 @@ func IsZero(s interface{}) bool {
 
 	for i := range fields {
 		val := v.Field(i)
-		if val.Kind() == reflect.Struct {
+		if IsStruct(val.Interface()) {
 			ok := IsZero(val.Interface())
 			if !ok {
 				return false
@@ -130,7 +131,7 @@ func Fields(s interface{}) []string {
 	keys := make([]string, 0)
 	for i, field := range fields {
 		val := v.Field(i)
-		if val.Kind() == reflect.Struct {
+		if IsStruct(val.Interface()) {
 			// look out for embedded structs, and convert them to a
 			// []string to be added to the final values slice
 			for _, embeddedVal := range Fields(val.Interface()) {

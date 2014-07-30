@@ -93,10 +93,10 @@ func TestMap_Nested(t *testing.T) {
 	type A struct {
 		Name string
 	}
-	a := A{Name: "example"}
+	a := &A{Name: "example"}
 
 	type B struct {
-		A A
+		A *A
 	}
 	b := &B{A: a}
 
