@@ -2,8 +2,6 @@
 
 Structure contains various utilities to work with Go (Golang) structs.
 
-**WIP, Use with care until it's finished and announced**
-
 ## Install
 
 ```bash
