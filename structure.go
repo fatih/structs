@@ -1,10 +1,7 @@
 // Package structure contains various utilities functions to work with structs.
 package structure
 
-import (
-	"reflect"
-	"sort"
-)
+import "reflect"
 
 // Map converts the given s struct to a map[string]interface{}, where the keys
 // of the map are the field names and the values of the map the associated
@@ -33,10 +30,6 @@ func Map(s interface{}) map[string]interface{} {
 		// override if the user passed a structure tag value
 		// ignore if the user passed the "-" value
 		if tag := field.Tag.Get("structure"); tag != "" {
-			if tag == "-" {
-				continue
-			}
-
 			name = tag
 		}
 
@@ -46,9 +39,9 @@ func Map(s interface{}) map[string]interface{} {
 	return out
 }
 
-// Values converts the given s struct's field values to a []interface{}.
-// Values are inserted and sorted according to the field names. A struct tag
-// with the content of "-" ignores the that particular field. Example:
+// Values converts the given s struct's field values to a []interface{}.  A
+// struct tag with the content of "-" ignores the that particular field.
+// Example:
 //
 //   // Field is ignored by this package.
 //   Field int `structure:"-"`
@@ -56,21 +49,11 @@ func Map(s interface{}) map[string]interface{} {
 // Note that only exported fields of a struct can be accessed, non exported
 // fields  will be neglected.  It panics if s's kind is not struct.
 func Values(s interface{}) []interface{} {
-	m := Map(s)
+	v, fields := strctInfo(s)
 
-	keys := make([]string, len(m))
-	count := 0
-	for k := range m {
-		keys[count] = k
-		count++
-	}
-
-	sort.Strings(keys)
-
-	t := make([]interface{}, len(m))
-
-	for i, key := range keys {
-		t[i] = m[key]
+	t := make([]interface{}, len(fields))
+	for i := range fields {
+		t[i] = v.Field(i).Interface()
 	}
 
 	return t
@@ -89,12 +72,7 @@ func Values(s interface{}) []interface{} {
 func IsValid(s interface{}) bool {
 	v, fields := strctInfo(s)
 
-	for i, field := range fields {
-		// don't check if it's omitted
-		if tag := field.Tag.Get("structure"); tag == "-" {
-			continue
-		}
-
+	for i := range fields {
 		// zero value of the given field, such as "" for string, 0 for int
 		zero := reflect.Zero(v.Field(i).Type()).Interface()
 
@@ -109,8 +87,8 @@ func IsValid(s interface{}) bool {
 	return true
 }
 
-// Fields returns a sorted slice of field names. A struct tag with the content
-// of "-" ignores the checking of that particular field. Example:
+// Fields returns a slice of field names. A struct tag with the content of "-"
+// ignores the checking of that particular field. Example:
 //
 //   // Field is ignored by this package.
 //   Field bool `structure:"-"`
@@ -118,16 +96,12 @@ func IsValid(s interface{}) bool {
 // Note that only exported fields of a struct can be accessed, non exported
 // fields  will be neglected.
 func Fields(s interface{}) []string {
-	m := Map(s)
+	_, fields := strctInfo(s)
 
-	keys := make([]string, len(m))
-	count := 0
-	for k := range m {
-		keys[count] = k
-		count++
+	keys := make([]string, len(fields))
+	for i, field := range fields {
+		keys[i] = field.Name
 	}
-
-	sort.Strings(keys)
 
 	return keys
 }
@@ -160,15 +134,21 @@ func strctInfo(s interface{}) (reflect.Value, []reflect.StructField) {
 
 	t := v.Type()
 
-	f := make([]reflect.StructField, t.NumField())
+	f := make([]reflect.StructField, 0)
 
 	for i := 0; i < t.NumField(); i++ {
+		field := t.Field(i)
 		// we can't access the value of unexported fields
-		if t.Field(i).PkgPath != "" {
+		if field.PkgPath != "" {
 			continue
 		}
 
-		f[i] = t.Field(i)
+		// don't check if it's omitted
+		if tag := field.Tag.Get("structure"); tag == "-" {
+			continue
+		}
+
+		f = append(f, field)
 	}
 
 	return v, f

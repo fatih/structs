@@ -71,10 +71,9 @@ func ExampleValues() {
 
 	m := Values(s)
 
-	// note that the output is sorted according to the field names
 	fmt.Printf("Values: %+v\n", m)
 	// Output:
-	// Values: [false 135790 Fatih]
+	// Values: [Fatih 135790 false]
 }
 
 func ExampleFields() {
@@ -95,7 +94,7 @@ func ExampleFields() {
 	// note that the output is sorted according to the field names
 	fmt.Printf("Fields: %+v\n", m)
 	// Output:
-	// Fields: [LastAccessed Name Number]
+	// Fields: [Name LastAccessed Number]
 }
 
 func ExampleIsValid() {
