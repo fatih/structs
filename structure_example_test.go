@@ -91,7 +91,6 @@ func ExampleFields() {
 
 	m := Fields(s)
 
-	// note that the output is sorted according to the field names
 	fmt.Printf("Fields: %+v\n", m)
 	// Output:
 	// Fields: [Name LastAccessed Number]
