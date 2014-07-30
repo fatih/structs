@@ -120,10 +120,10 @@ func TestMap_Anonymous(t *testing.T) {
 	type A struct {
 		Name string
 	}
-	a := A{Name: "example"}
+	a := &A{Name: "example"}
 
 	type B struct {
-		A
+		*A
 	}
 	b := &B{}
 	b.A = a
@@ -423,5 +423,11 @@ func TestName(t *testing.T) {
 	n := Name(f)
 	if n != "Foo" {
 		t.Error("Name should return Foo, got: %s", n)
+	}
+
+	unnamed := struct{ Name string }{Name: "Cihangir"}
+	m := Name(unnamed)
+	if m != "" {
+		t.Error("Name should return empty string for unnamed struct, got: %s", n)
 	}
 }
