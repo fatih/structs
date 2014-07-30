@@ -79,7 +79,7 @@ func Values(s interface{}) []interface{} {
 
 }
 
-// IsValid returns true if all fields in a struct are initialized (non zero
+// IsZero returns true if all fields in a struct are initialized (non zero
 // value). A struct tag with the content of "-" ignores the checking of that
 // particular field. Example:
 //
@@ -88,13 +88,13 @@ func Values(s interface{}) []interface{} {
 //
 // Note that only exported fields of a struct can be accessed, non exported
 // fields  will be neglected. It panics if s's kind is not struct.
-func IsValid(s interface{}) bool {
+func IsZero(s interface{}) bool {
 	v, fields := strctInfo(s)
 
 	for i := range fields {
 		val := v.Field(i)
 		if val.Kind() == reflect.Struct {
-			ok := IsValid(val.Interface())
+			ok := IsZero(val.Interface())
 			if !ok {
 				return false
 			}

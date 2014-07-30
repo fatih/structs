@@ -46,7 +46,7 @@ f := structure.Fields(s)
 n := structure.Name(s)
 
 // Check if the fields of a struct is initialized or not.
-if structure.IsValid(s) {
+if structure.IsZero(s) {
     fmt.Println("s is initialized")
 }
 

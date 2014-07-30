@@ -345,7 +345,7 @@ func TestFields_Anonymous(t *testing.T) {
 	}
 }
 
-func TestIsValid(t *testing.T) {
+func TestIsZero(t *testing.T) {
 	var T = struct {
 		A string
 		B int
@@ -356,9 +356,9 @@ func TestIsValid(t *testing.T) {
 		B: 2,
 	}
 
-	ok := IsValid(T)
+	ok := IsZero(T)
 	if ok {
-		t.Error("IsValid should return false because D is not initialized")
+		t.Error("IsZero should return false because D is not initialized")
 	}
 
 	var X = struct {
@@ -368,13 +368,13 @@ func TestIsValid(t *testing.T) {
 		A: "a-value",
 	}
 
-	ok = IsValid(X)
+	ok = IsZero(X)
 	if ok {
-		t.Error("IsValid should return false because F is not initialized")
+		t.Error("IsZero should return false because F is not initialized")
 	}
 }
 
-func TestIsValid_Nested(t *testing.T) {
+func TestIsZero_Nested(t *testing.T) {
 	type A struct {
 		Name string
 		D    string
@@ -387,13 +387,13 @@ func TestIsValid_Nested(t *testing.T) {
 	}
 	b := &B{A: a, C: 123}
 
-	ok := IsValid(b)
+	ok := IsZero(b)
 	if ok {
-		t.Error("IsValid should return false because D is not initialized")
+		t.Error("IsZero should return false because D is not initialized")
 	}
 }
 
-func TestIsValid_Anonymous(t *testing.T) {
+func TestIsZero_Anonymous(t *testing.T) {
 	type A struct {
 		Name string
 		D    string
@@ -407,9 +407,9 @@ func TestIsValid_Anonymous(t *testing.T) {
 	b := &B{C: 123}
 	b.A = a
 
-	ok := IsValid(b)
+	ok := IsZero(b)
 	if ok {
-		t.Error("IsValid should return false because D is not initialized")
+		t.Error("IsZero should return false because D is not initialized")
 	}
 }
 
