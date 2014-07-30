@@ -94,7 +94,7 @@ func IsValid(s interface{}) bool {
 //   Field bool `structure:"-"`
 //
 // Note that only exported fields of a struct can be accessed, non exported
-// fields  will be neglected.
+// fields  will be neglected. It panics if s's kind is not struct.
 func Fields(s interface{}) []string {
 	_, fields := strctInfo(s)
 
@@ -117,21 +117,27 @@ func IsStruct(s interface{}) bool {
 	return t.Kind() == reflect.Struct
 }
 
+//  Name returns the structs's type name within its package. It returns an
+//  empty string for unnamed types. It panics if s's kind is not struct.
+func Name(s interface{}) string {
+	t := reflect.TypeOf(s)
+
+	if t.Kind() == reflect.Ptr {
+		t = t.Elem()
+	}
+
+	if t.Kind() != reflect.Struct {
+		panic("not struct")
+	}
+
+	return t.Name()
+}
+
 // strctInfo returns the struct value and the exported struct fields for a
 // given s struct. This is a convenient helper method to avoid duplicate code
 // in some of the functions.
 func strctInfo(s interface{}) (reflect.Value, []reflect.StructField) {
-	v := reflect.ValueOf(s)
-
-	// if pointer get the underlying element≤
-	if v.Kind() == reflect.Ptr {
-		v = v.Elem()
-	}
-
-	if v.Kind() != reflect.Struct {
-		panic("not struct")
-	}
-
+	v := strctVal(s)
 	t := v.Type()
 
 	f := make([]reflect.StructField, 0)
@@ -152,4 +158,19 @@ func strctInfo(s interface{}) (reflect.Value, []reflect.StructField) {
 	}
 
 	return v, f
+}
+
+func strctVal(s interface{}) reflect.Value {
+	v := reflect.ValueOf(s)
+
+	// if pointer get the underlying element≤
+	if v.Kind() == reflect.Ptr {
+		v = v.Elem()
+	}
+
+	if v.Kind() != reflect.Struct {
+		panic("not struct")
+	}
+
+	return v
 }

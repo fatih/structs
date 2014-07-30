@@ -196,3 +196,16 @@ func TestIsValid(t *testing.T) {
 		t.Error("IsValid should return false because F is not initialized")
 	}
 }
+
+func TestName(t *testing.T) {
+	type Foo struct {
+		A string
+		B bool
+	}
+	f := &Foo{}
+
+	n := Name(f)
+	if n != "Foo" {
+		t.Error("Name should return Foo, got: %s", n)
+	}
+}

@@ -41,6 +41,10 @@ v := structure.Values(s)
 // => ["Enabled", "ID", "Name"]
 f := structure.Fields(s)
 
+// Return the struct name
+// => "Server"
+n := structure.Name(s)
+
 // Check if the fields of a struct is initialized or not.
 if structure.IsValid(s) {
     fmt.Println("s is initialized")
