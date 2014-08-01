@@ -1,8 +1,6 @@
 package structure
 
 import (
-	"fmt"
-	"io"
 	"reflect"
 	"testing"
 )
@@ -472,18 +470,4 @@ func TestName(t *testing.T) {
 	if m != "" {
 		t.Error("Name should return empty string for unnamed struct, got: %s", n)
 	}
-}
-
-type Foo struct{}
-
-func (f Foo) String() string                    { return "foo" }
-func (f Foo) Write(p []byte) (n int, err error) { return 0, nil }
-
-func TestImplements(t *testing.T) {
-	f := Foo{}
-
-	ok := Implements(f, new(io.Reader))
-
-	fmt.Printf("ok %+v\n", ok)
-
 }

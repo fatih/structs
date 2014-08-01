@@ -194,12 +194,6 @@ func Has(s interface{}, fieldName string) bool {
 	return false
 }
 
-// Implements returns true if the given struct s implements the i interface
-// type.
-func Implements(s, i interface{}) bool {
-	return reflect.TypeOf(s).Implements(reflect.TypeOf(i).Elem())
-}
-
 // strctInfo returns the struct value and the exported struct fields for a
 // given s struct. This is a convenient helper method to avoid duplicate code
 // in some of the functions.

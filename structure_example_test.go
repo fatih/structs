@@ -2,7 +2,6 @@ package structure
 
 import (
 	"fmt"
-	"io"
 	"time"
 )
 
@@ -146,29 +145,4 @@ func ExampleHas() {
 	fmt.Printf("Has: %+v\n", found)
 	// Output:
 	// Has: true
-}
-
-type Bar struct{}
-
-func (b Bar) String() string                    { return "bar" }
-func (b Bar) Write(p []byte) (n int, err error) { return 0, nil }
-
-func ExampleImplements() {
-	// type Bar struct{}
-	//
-	// func (b Bar) String() string                    { return "bar" }
-	// func (b Bar) Write(p []byte) (n int, err error) { return 0, nil }
-	b := Bar{}
-
-	okA := Implements(b, new(fmt.Stringer))
-	okB := Implements(b, new(io.Writer))
-	okC := Implements(b, new(io.Reader))
-
-	fmt.Printf("Implements io.Writer: %+v\n", okA)
-	fmt.Printf("Implements io.Reader: %+v\n", okB)
-	fmt.Printf("Implements fmt.Stringer: %+v\n", okC)
-	// Output:
-	// Implements io.Writer: true
-	// Implements io.Reader: true
-	// Implements fmt.Stringer: false
 }
