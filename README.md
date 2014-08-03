@@ -2,9 +2,9 @@
 
 Structure contains various utilities to work with Go (Golang) structs. It was
 initially used by me to convert a struct into a `map[string]interface{}`. With
-time I've added other high level functions for structs.  It's basically a high
-level package based on primitives from the reflect package. Feel free to add
-new high level functions or improve the existing code.
+time I've added other utilities for structs.  It's basically a high level
+package based on primitives from the reflect package. Feel free to add new
+functions or improve the existing code.
 
 ## Install
 
