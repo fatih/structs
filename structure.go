@@ -80,9 +80,9 @@ func Values(s interface{}) []interface{} {
 
 }
 
-// IsZero returns true if any field in a struct is not initialized (zero
-// value). A struct tag with the content of "-" ignores the checking of that
-// particular field. Example:
+// IsZero returns true if any field in a struct is not initialized and has the
+// zero default value. A struct tag with the content of "-" ignores the checking
+// of that particular field. Example:
 //
 //   // Field is ignored by this package.
 //   Field bool `structure:"-"`

@@ -1,6 +1,10 @@
 # Structure [![GoDoc](https://godoc.org/github.com/fatih/structure?status.svg)](http://godoc.org/github.com/fatih/structure) [![Build Status](https://travis-ci.org/fatih/structure.svg)](https://travis-ci.org/fatih/structure)
 
-Structure contains various utilities to work with Go (Golang) structs.
+Structure contains various utilities to work with Go (Golang) structs. It was
+initially used by me to convert a struct into a `map[string]interface{}`. With
+time I've added other high level functions for structs.  It's basically a high
+level package based on primitives from the reflect package. Feel free to add
+new high level functions or improve the existing code.
 
 ## Install
 
@@ -32,11 +36,11 @@ s := &Server{
 m := structure.Map(s)
 
 // Convert the values of a struct to a []interface{}
-// => [true, 123456, "gopher"]
+// => [123456, "gopher", true]
 v := structure.Values(s)
 
 // Convert the fields of a struct to a []string. 
-// => ["Enabled", "ID", "Name"]
+// => ["Name", "ID", "Enabled"]
 f := structure.Fields(s)
 
 // Return the struct name
@@ -45,7 +49,7 @@ n := structure.Name(s)
 
 // Check if field name exists
 // => true
-n := structure.Has(s, "Enabled")
+h := structure.Has(s, "Enabled")
 
 // Check if the fields of a struct is initialized or not.
 if !structure.IsZero(s) {
@@ -58,4 +62,13 @@ if structure.IsStruct(s) {
 }
 
 ```
+
+## Credits
+
+ * [Fatih Arslan](https://github.com/fatih)
+
+## License
+
+The MIT License (MIT) - see LICENSE.md for more details
+
 
