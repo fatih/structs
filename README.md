@@ -66,6 +66,7 @@ if structure.IsStruct(s) {
 ## Credits
 
  * [Fatih Arslan](https://github.com/fatih)
+ * [Cihangir Savas](https://github.com/cihangir)
 
 ## License
 
