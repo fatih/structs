@@ -3,6 +3,10 @@ package structure
 
 import "reflect"
 
+var (
+	tagName = "structure" // struct's field default tag name
+)
+
 // Map converts the given s struct to a map[string]interface{}, where the keys
 // of the map are the field names and the values of the map the associated
 // values of the fields. The default key string is the struct field name but
@@ -40,7 +44,7 @@ func Map(s interface{}) map[string]interface{} {
 
 		// override if the user passed a structure tag value
 		// ignore if the user passed the "-" value
-		if tag := field.Tag.Get("structure"); tag != "" {
+		if tag := field.Tag.Get(tagName); tag != "" {
 			name = tag
 		}
 
@@ -194,6 +198,16 @@ func Has(s interface{}, fieldName string) bool {
 	return false
 }
 
+// Set struct's field tag name
+func SetTagName(n string) {
+	tagName = n
+}
+
+// Reset struct's field tag name, default: "structure"
+func ResetTagName() {
+	tagName = "structure"
+}
+
 // strctInfo returns the struct value and the exported struct fields for a
 // given s struct. This is a convenient helper method to avoid duplicate code
 // in some of the functions.
@@ -211,7 +225,7 @@ func strctInfo(s interface{}) (reflect.Value, []reflect.StructField) {
 		}
 
 		// don't check if it's omitted
-		if tag := field.Tag.Get("structure"); tag == "-" {
+		if tag := field.Tag.Get(tagName); tag == "-" {
 			continue
 		}
 
