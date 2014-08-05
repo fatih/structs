@@ -89,6 +89,41 @@ func TestMap_Tag(t *testing.T) {
 
 }
 
+func TestMap_CustomTag(t *testing.T) {
+	var T = struct {
+		A string `dd:"x"`
+		B int    `dd:"y"`
+		C bool   `dd:"z"`
+	}{
+		A: "a-value",
+		B: 2,
+		C: true,
+	}
+
+	defaultName := DefaultTagName
+	DefaultTagName = "dd"
+	defer func() {
+		DefaultTagName = defaultName
+	}()
+	a := Map(T)
+
+	inMap := func(key interface{}) bool {
+		for k := range a {
+			if reflect.DeepEqual(k, key) {
+				return true
+			}
+		}
+		return false
+	}
+
+	for _, key := range []string{"x", "y", "z"} {
+		if !inMap(key) {
+			t.Errorf("Map should have the key %v", key)
+		}
+	}
+
+}
+
 func TestMap_Nested(t *testing.T) {
 	type A struct {
 		Name string
