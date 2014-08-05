@@ -80,6 +80,43 @@ func Values(s interface{}) []interface{} {
 
 }
 
+// IsZero returns true if all fields in a struct is a zero value (not
+// initialized) A struct tag with the content of "-" ignores the checking of
+// that particular field. Example:
+//
+//   // Field is ignored by this package.
+//   Field bool `structure:"-"`
+//
+// Note that only exported fields of a struct can be accessed, non exported
+// fields  will be neglected. It panics if s's kind is not struct.
+func IsZero(s interface{}) bool {
+	v, fields := strctInfo(s)
+
+	for i := range fields {
+		val := v.Field(i)
+		if IsStruct(val.Interface()) {
+			ok := IsZero(val.Interface())
+			if !ok {
+				return false
+			}
+
+			continue
+		}
+
+		// zero value of the given field, such as "" for string, 0 for int
+		zero := reflect.Zero(v.Field(i).Type()).Interface()
+
+		//  current value of the given field
+		current := v.Field(i).Interface()
+
+		if !reflect.DeepEqual(current, zero) {
+			return false
+		}
+	}
+
+	return true
+}
+
 // HasZero returns true if a field in a struct is not initialized (zero value).
 // A struct tag with the content of "-" ignores the checking of that particular
 // field. Example:

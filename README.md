@@ -51,9 +51,14 @@ n := structure.Name(s)
 // => true
 h := structure.Has(s, "Enabled")
 
-// Check if any field of a struct is initialized or not.
+// Check if a field of a struct is initialized or not.
 if structure.HasZero(s) {
     fmt.Println("s has a zero value field")
+}
+
+// Check if all field of a struct is initialized or not.
+if structure.IsZero(s) {
+    fmt.Println("all fields of s is zero value")
 }
 
 // Check if it's a struct or a pointer to struct

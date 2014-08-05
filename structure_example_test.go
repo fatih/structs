@@ -96,6 +96,31 @@ func ExampleFields() {
 	// Fields: [Name LastAccessed Number]
 }
 
+func ExampleIsZero() {
+	type Server struct {
+		Name    string
+		ID      int32
+		Enabled bool
+	}
+
+	// Nothing is initalized
+	a := &Server{}
+	isZeroA := IsZero(a)
+
+	// Name and Enabled is initialized, but not ID
+	b := &Server{
+		Name:    "Golang",
+		Enabled: true,
+	}
+	isZeroB := IsZero(b)
+
+	fmt.Printf("%#v\n", isZeroA)
+	fmt.Printf("%#v\n", isZeroB)
+	// Output:
+	// true
+	// false
+}
+
 func ExampleHasZero() {
 	// Let's define an Access struct. Note that the "Enabled" field is not
 	// going to be checked because we added the "structure" tag to the field.

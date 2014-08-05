@@ -345,6 +345,102 @@ func TestFields_Anonymous(t *testing.T) {
 	}
 }
 
+func TestIsZero(t *testing.T) {
+	var T = struct {
+		A string
+		B int
+		C bool `structure:"-"`
+		D []string
+	}{}
+
+	ok := IsZero(T)
+	if !ok {
+		t.Error("IsZero should return true because none of the fields are initialized.")
+	}
+
+	var X = struct {
+		A string
+		F *bool
+	}{
+		A: "a-value",
+	}
+
+	ok = IsZero(X)
+	if ok {
+		t.Error("IsZero should return false because A is initialized")
+	}
+
+	var Y = struct {
+		A string
+		B int
+	}{
+		A: "a-value",
+		B: 123,
+	}
+
+	ok = IsZero(Y)
+	if ok {
+		t.Error("IsZero should return false because A and B is initialized")
+	}
+}
+
+func TestIsZero_Nested(t *testing.T) {
+	type A struct {
+		Name string
+		D    string
+	}
+	a := A{Name: "example"}
+
+	type B struct {
+		A A
+		C int
+	}
+	b := &B{A: a, C: 123}
+
+	ok := IsZero(b)
+	if ok {
+		t.Error("IsZero should return false because A, B and C are initialized")
+	}
+
+	aZero := A{}
+	bZero := &B{A: aZero}
+
+	ok = IsZero(bZero)
+	if !ok {
+		t.Error("IsZero should return true because neither A nor B is initialized")
+	}
+
+}
+
+func TestIsZero_Anonymous(t *testing.T) {
+	type A struct {
+		Name string
+		D    string
+	}
+	a := A{Name: "example"}
+
+	type B struct {
+		A
+		C int
+	}
+	b := &B{C: 123}
+	b.A = a
+
+	ok := IsZero(b)
+	if ok {
+		t.Error("IsZero should return false because A, B and C are initialized")
+	}
+
+	aZero := A{}
+	bZero := &B{}
+	bZero.A = aZero
+
+	ok = IsZero(bZero)
+	if !ok {
+		t.Error("IsZero should return true because neither A nor B is initialized")
+	}
+}
+
 func TestHasZero(t *testing.T) {
 	var T = struct {
 		A string
