@@ -80,22 +80,22 @@ func Values(s interface{}) []interface{} {
 
 }
 
-// IsZero returns true if any field in a struct is not initialized and has the
-// zero default value. A struct tag with the content of "-" ignores the checking
-// of that particular field. Example:
+// HasZero returns true if a field in a struct is not initialized (zero value).
+// A struct tag with the content of "-" ignores the checking of that particular
+// field. Example:
 //
 //   // Field is ignored by this package.
 //   Field bool `structure:"-"`
 //
 // Note that only exported fields of a struct can be accessed, non exported
 // fields  will be neglected. It panics if s's kind is not struct.
-func IsZero(s interface{}) bool {
+func HasZero(s interface{}) bool {
 	v, fields := strctInfo(s)
 
 	for i := range fields {
 		val := v.Field(i)
 		if IsStruct(val.Interface()) {
-			ok := IsZero(val.Interface())
+			ok := HasZero(val.Interface())
 			if ok {
 				return true
 			}
@@ -219,21 +219,6 @@ func strctInfo(s interface{}) (reflect.Value, []reflect.StructField) {
 	}
 
 	return v, f
-}
-
-func strctType(s interface{}) reflect.Type {
-	t := reflect.TypeOf(s)
-
-	// if pointer get the underlying element≤
-	if t.Kind() == reflect.Ptr {
-		t = t.Elem()
-	}
-
-	if t.Kind() != reflect.Struct {
-		panic("not struct")
-	}
-
-	return t
 }
 
 func strctVal(s interface{}) reflect.Value {

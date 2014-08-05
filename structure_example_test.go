@@ -96,7 +96,7 @@ func ExampleFields() {
 	// Fields: [Name LastAccessed Number]
 }
 
-func ExampleIsZero() {
+func ExampleHasZero() {
 	// Let's define an Access struct. Note that the "Enabled" field is not
 	// going to be checked because we added the "structure" tag to the field.
 	type Access struct {
@@ -110,7 +110,7 @@ func ExampleIsZero() {
 	a := &Access{
 		LastAccessed: time.Now(),
 	}
-	isZeroA := IsZero(a)
+	hasZeroA := HasZero(a)
 
 	// Name and Number is initialized.
 	b := &Access{
@@ -118,10 +118,10 @@ func ExampleIsZero() {
 		LastAccessed: time.Now(),
 		Number:       12345,
 	}
-	isZeroB := IsZero(b)
+	hasZeroB := HasZero(b)
 
-	fmt.Printf("%#v\n", isZeroA)
-	fmt.Printf("%#v\n", isZeroB)
+	fmt.Printf("%#v\n", hasZeroA)
+	fmt.Printf("%#v\n", hasZeroB)
 	// Output:
 	// true
 	// false
