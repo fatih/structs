@@ -3,6 +3,7 @@ package structure
 import (
 	"reflect"
 	"testing"
+	"time"
 )
 
 func TestMapNonStruct(t *testing.T) {
@@ -143,6 +144,37 @@ func TestMap_CustomTag(t *testing.T) {
 		}
 	}
 
+}
+
+func TestMap_OmitNested(t *testing.T) {
+	type A struct {
+		Name  string
+		Value string
+		Time  time.Time `structure:",omitnested"`
+	}
+	a := A{Time: time.Now()}
+
+	type B struct {
+		Desc string
+		A    A
+	}
+	b := &B{A: a}
+
+	m := Map(b)
+
+	in, ok := m["A"].(map[string]interface{})
+	if !ok {
+		t.Error("Map nested structs is not available in the map")
+	}
+
+	// should not happen
+	if _, ok := in["Time"].(map[string]interface{}); ok {
+		t.Error("Map nested struct should omit recursiving parsing of Time")
+	}
+
+	if _, ok := in["Time"].(time.Time); !ok {
+		t.Error("Map nested struct should stop parsing of Time at is current value")
+	}
 }
 
 func TestMap_Nested(t *testing.T) {

@@ -17,7 +17,8 @@ func (t tagOptions) Has(opt string) bool {
 }
 
 // parseTag splits a struct field's tag into its name and a list of options
-// which comes after a name
+// which comes after a name. A tag is in the form of: "name,option1,option2".
+// The name can be neglectected.
 func parseTag(tag string) (string, tagOptions) {
 	res := strings.Split(tag, ",")
 

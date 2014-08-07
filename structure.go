@@ -34,18 +34,17 @@ func Map(s interface{}) map[string]interface{} {
 
 		var finalVal interface{}
 
-		if IsStruct(val.Interface()) {
+		tagName, tagOpts := parseTag(field.Tag.Get(DefaultTagName))
+		if tagName != "" {
+			name = tagName
+		}
+
+		if IsStruct(val.Interface()) && !tagOpts.Has("omitnested") {
 			// look out for embedded structs, and convert them to a
 			// map[string]interface{} too
 			finalVal = Map(val.Interface())
 		} else {
 			finalVal = val.Interface()
-		}
-
-		// override if the user passed a structure tag value
-		// ignore if the user passed the "-" value
-		if tag := field.Tag.Get(DefaultTagName); tag != "" {
-			name = tag
 		}
 
 		out[name] = finalVal
