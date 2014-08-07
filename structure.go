@@ -24,9 +24,9 @@ func Map(s interface{}) map[string]interface{} {
 
 	v, fields := strctInfo(s)
 
-	for i, field := range fields {
+	for _, field := range fields {
 		name := field.Name
-		val := v.Field(i)
+		val := v.FieldByName(name)
 
 		var finalVal interface{}
 
@@ -63,8 +63,8 @@ func Values(s interface{}) []interface{} {
 	v, fields := strctInfo(s)
 
 	t := make([]interface{}, 0)
-	for i := range fields {
-		val := v.Field(i)
+	for _, field := range fields {
+		val := v.FieldByName(field.Name)
 		if IsStruct(val.Interface()) {
 			// look out for embedded structs, and convert them to a
 			// []interface{} to be added to the final values slice
@@ -92,8 +92,9 @@ func Values(s interface{}) []interface{} {
 func IsZero(s interface{}) bool {
 	v, fields := strctInfo(s)
 
-	for i := range fields {
-		val := v.Field(i)
+	for _, field := range fields {
+		val := v.FieldByName(field.Name)
+
 		if IsStruct(val.Interface()) {
 			ok := IsZero(val.Interface())
 			if !ok {
@@ -104,10 +105,10 @@ func IsZero(s interface{}) bool {
 		}
 
 		// zero value of the given field, such as "" for string, 0 for int
-		zero := reflect.Zero(v.Field(i).Type()).Interface()
+		zero := reflect.Zero(val.Type()).Interface()
 
 		//  current value of the given field
-		current := v.Field(i).Interface()
+		current := val.Interface()
 
 		if !reflect.DeepEqual(current, zero) {
 			return false
@@ -129,8 +130,8 @@ func IsZero(s interface{}) bool {
 func HasZero(s interface{}) bool {
 	v, fields := strctInfo(s)
 
-	for i := range fields {
-		val := v.Field(i)
+	for _, field := range fields {
+		val := v.FieldByName(field.Name)
 		if IsStruct(val.Interface()) {
 			ok := HasZero(val.Interface())
 			if ok {
@@ -141,10 +142,10 @@ func HasZero(s interface{}) bool {
 		}
 
 		// zero value of the given field, such as "" for string, 0 for int
-		zero := reflect.Zero(v.Field(i).Type()).Interface()
+		zero := reflect.Zero(val.Type()).Interface()
 
 		//  current value of the given field
-		current := v.Field(i).Interface()
+		current := val.Interface()
 
 		if reflect.DeepEqual(current, zero) {
 			return true
@@ -166,8 +167,8 @@ func Fields(s interface{}) []string {
 	v, fields := strctInfo(s)
 
 	keys := make([]string, 0)
-	for i, field := range fields {
-		val := v.Field(i)
+	for _, field := range fields {
+		val := v.FieldByName(field.Name)
 		if IsStruct(val.Interface()) {
 			// look out for embedded structs, and convert them to a
 			// []string to be added to the final values slice
@@ -214,8 +215,8 @@ func Name(s interface{}) string {
 func Has(s interface{}, fieldName string) bool {
 	v, fields := strctInfo(s)
 
-	for i, field := range fields {
-		val := v.Field(i)
+	for _, field := range fields {
+		val := v.FieldByName(field.Name)
 
 		if IsStruct(val.Interface()) {
 			if ok := Has(val.Interface(), fieldName); ok {

@@ -19,6 +19,27 @@ func TestMapNonStruct(t *testing.T) {
 	_ = Map(foo)
 }
 
+func TestStructIndexes(t *testing.T) {
+	type C struct {
+		something int
+		Props     map[string]interface{}
+	}
+
+	defer func() {
+		err := recover()
+		if err != nil {
+			t.Error("Using mixed indexes should not panic")
+		}
+	}()
+
+	// They should not panic
+	_ = Map(&C{})
+	_ = Fields(&C{})
+	_ = Values(&C{})
+	_ = IsZero(&C{})
+	_ = HasZero(&C{})
+}
+
 func TestMap(t *testing.T) {
 	var T = struct {
 		A string
