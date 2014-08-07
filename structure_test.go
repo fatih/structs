@@ -278,6 +278,45 @@ func TestValues(t *testing.T) {
 	}
 }
 
+func TestValues_OmitNested(t *testing.T) {
+	type A struct {
+		Name  string
+		Value int
+	}
+
+	a := A{
+		Name:  "example",
+		Value: 123,
+	}
+
+	type B struct {
+		A A `structure:",omitnested"`
+		C int
+	}
+	b := &B{A: a, C: 123}
+
+	s := Values(b)
+
+	if len(s) != 2 {
+		t.Errorf("Values of omitted nested struct should be not counted")
+	}
+
+	inSlice := func(val interface{}) bool {
+		for _, v := range s {
+			if reflect.DeepEqual(v, val) {
+				return true
+			}
+		}
+		return false
+	}
+
+	for _, val := range []interface{}{123, a} {
+		if !inSlice(val) {
+			t.Errorf("Values should have the value %v", val)
+		}
+	}
+}
+
 func TestValues_Nested(t *testing.T) {
 	type A struct {
 		Name string

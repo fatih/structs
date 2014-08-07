@@ -44,6 +44,7 @@ func Map(s interface{}) map[string]interface{} {
 			// map[string]interface{} too
 			finalVal = Map(val.Interface())
 		} else {
+
 			finalVal = val.Interface()
 		}
 
@@ -66,9 +67,13 @@ func Values(s interface{}) []interface{} {
 	v, fields := strctInfo(s)
 
 	t := make([]interface{}, 0)
+
 	for _, field := range fields {
 		val := v.FieldByName(field.Name)
-		if IsStruct(val.Interface()) {
+
+		_, tagOpts := parseTag(field.Tag.Get(DefaultTagName))
+
+		if IsStruct(val.Interface()) && !tagOpts.Has("omitnested") {
 			// look out for embedded structs, and convert them to a
 			// []interface{} to be added to the final values slice
 			for _, embeddedVal := range Values(val.Interface()) {
