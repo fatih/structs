@@ -28,9 +28,9 @@ func Map(s interface{}) map[string]interface{} {
 
 	v, fields := strctInfo(s)
 
-	for i, field := range fields {
+	for _, field := range fields {
 		name := field.Name
-		val := v.Field(i)
+		val := v.FieldByIndex(field.Index)
 
 		var finalVal interface{}
 
