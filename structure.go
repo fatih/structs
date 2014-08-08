@@ -21,6 +21,13 @@ var (
 //   // Field is ignored by this package.
 //   Field bool `structure:"-"`
 //
+// A value with the option of "omitnested" stops iterating further if the type
+// is a struct. Example:
+//
+//   // Field is not processed further by this package.
+//   Field time.Time     `structure:"myName,omitnested"`
+//   Field *http.Request `structure:",omitnested"`
+//
 // Note that only exported fields of a struct can be accessed, non exported
 // fields will be neglected. It panics if s's kind is not struct.
 func Map(s interface{}) map[string]interface{} {
@@ -61,6 +68,13 @@ func Map(s interface{}) map[string]interface{} {
 //   // Field is ignored by this package.
 //   Field int `structure:"-"`
 //
+// A value with the option of "omitnested" stops iterating further if the type
+// is a struct. Example:
+//
+//   // Field is not processed further by this package.
+//   Field time.Time     `structure:"myName,omitnested"`
+//   Field *http.Request `structure:",omitnested"`
+//
 // Note that only exported fields of a struct can be accessed, non exported
 // fields  will be neglected.  It panics if s's kind is not struct.
 func Values(s interface{}) []interface{} {
@@ -94,6 +108,13 @@ func Values(s interface{}) []interface{} {
 //   // Field is ignored by this package.
 //   Field bool `structure:"-"`
 //
+// A value with the option of "omitnested" stops iterating further if the type
+// is a struct. Example:
+//
+//   // Field is not processed further by this package.
+//   Field time.Time     `structure:"myName,omitnested"`
+//   Field *http.Request `structure:",omitnested"`
+//
 // Note that only exported fields of a struct can be accessed, non exported
 // fields  will be neglected. It panics if s's kind is not struct.
 func Fields(s interface{}) []string {
@@ -125,6 +146,13 @@ func Fields(s interface{}) []string {
 //
 //   // Field is ignored by this package.
 //   Field bool `structure:"-"`
+//
+// A value with the option of "omitnested" stops iterating further if the type
+// is a struct. Example:
+//
+//   // Field is not processed further by this package.
+//   Field time.Time     `structure:"myName,omitnested"`
+//   Field *http.Request `structure:",omitnested"`
 //
 // Note that only exported fields of a struct can be accessed, non exported
 // fields  will be neglected. It panics if s's kind is not struct.
@@ -165,6 +193,13 @@ func IsZero(s interface{}) bool {
 //
 //   // Field is ignored by this package.
 //   Field bool `structure:"-"`
+//
+// A value with the option of "omitnested" stops iterating further if the type
+// is a struct. Example:
+//
+//   // Field is not processed further by this package.
+//   Field time.Time     `structure:"myName,omitnested"`
+//   Field *http.Request `structure:",omitnested"`
 //
 // Note that only exported fields of a struct can be accessed, non exported
 // fields  will be neglected. It panics if s's kind is not struct.
