@@ -779,4 +779,13 @@ func TestName(t *testing.T) {
 	if m != "" {
 		t.Error("Name should return empty string for unnamed struct, got: %s", n)
 	}
+
+	defer func() {
+		err := recover()
+		if err == nil {
+			t.Error("Name should panic if a non struct is passed")
+		}
+	}()
+
+	Name([]string{})
 }
