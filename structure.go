@@ -134,7 +134,9 @@ func IsZero(s interface{}) bool {
 	for _, field := range fields {
 		val := v.FieldByName(field.Name)
 
-		if IsStruct(val.Interface()) {
+		_, tagOpts := parseTag(field.Tag.Get(DefaultTagName))
+
+		if IsStruct(val.Interface()) && !tagOpts.Has("omitnested") {
 			ok := IsZero(val.Interface())
 			if !ok {
 				return false
@@ -171,7 +173,10 @@ func HasZero(s interface{}) bool {
 
 	for _, field := range fields {
 		val := v.FieldByName(field.Name)
-		if IsStruct(val.Interface()) {
+
+		_, tagOpts := parseTag(field.Tag.Get(DefaultTagName))
+
+		if IsStruct(val.Interface()) && !tagOpts.Has("omitnested") {
 			ok := HasZero(val.Interface())
 			if ok {
 				return true

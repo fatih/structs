@@ -548,6 +548,34 @@ func TestIsZero(t *testing.T) {
 	}
 }
 
+func TestIsZero_OmitNested(t *testing.T) {
+	type A struct {
+		Name string
+		D    string
+	}
+	a := A{Name: "example"}
+
+	type B struct {
+		A A `structure:",omitnested"`
+		C int
+	}
+	b := &B{A: a, C: 123}
+
+	ok := IsZero(b)
+	if ok {
+		t.Error("IsZero should return false because A, B and C are initialized")
+	}
+
+	aZero := A{}
+	bZero := &B{A: aZero}
+
+	ok = IsZero(bZero)
+	if !ok {
+		t.Error("IsZero should return true because neither A nor B is initialized")
+	}
+
+}
+
 func TestIsZero_Nested(t *testing.T) {
 	type A struct {
 		Name string
@@ -644,6 +672,27 @@ func TestHasZero(t *testing.T) {
 	ok = HasZero(Y)
 	if ok {
 		t.Error("HasZero should return false because A and B is initialized")
+	}
+}
+
+func TestHasZero_OmitNested(t *testing.T) {
+	type A struct {
+		Name string
+		D    string
+	}
+	a := A{Name: "example"}
+
+	type B struct {
+		A A `structure:",omitnested"`
+		C int
+	}
+	b := &B{A: a, C: 123}
+
+	// Because the Field A inside B is omitted  HasZero should return false
+	// because it will stop iterating deeper andnot going to lookup for D
+	ok := HasZero(b)
+	if ok {
+		t.Error("HasZero should return false because A and C are initialized")
 	}
 }
 
