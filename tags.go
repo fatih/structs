@@ -20,21 +20,13 @@ func (t tagOptions) Has(opt string) bool {
 // which comes after a name. A tag is in the form of: "name,option1,option2".
 // The name can be neglectected.
 func parseTag(tag string) (string, tagOptions) {
-	res := strings.Split(tag, ",")
-
-	// tag = ""
-	if len(res) == 0 {
-		return tag, res
-	}
-
-	// tag = "name"
-	if len(res) == 1 {
-		return tag, res[1:]
-	}
-
 	// tag is one of followings:
+	// ""
+	// "name"
 	// "name,opt"
 	// "name,opt,opt2"
 	// ",opt"
+
+	res := strings.Split(tag, ",")
 	return res[0], res[1:]
 }
