@@ -21,6 +21,13 @@ var (
 //   // Field is ignored by this package.
 //   Field bool `structure:"-"`
 //
+// A value with the option of "omitnested" stops iterating further if the type
+// is a struct. Example:
+//
+//   // Field is not processed further by this package.
+//   Field time.Time     `structure:"myName,omitnested"`
+//   Field *http.Request `structure:",omitnested"`
+//
 // Note that only exported fields of a struct can be accessed, non exported
 // fields will be neglected. It panics if s's kind is not struct.
 func Map(s interface{}) map[string]interface{} {
@@ -34,18 +41,18 @@ func Map(s interface{}) map[string]interface{} {
 
 		var finalVal interface{}
 
-		if IsStruct(val.Interface()) {
+		tagName, tagOpts := parseTag(field.Tag.Get(DefaultTagName))
+		if tagName != "" {
+			name = tagName
+		}
+
+		if IsStruct(val.Interface()) && !tagOpts.Has("omitnested") {
 			// look out for embedded structs, and convert them to a
 			// map[string]interface{} too
 			finalVal = Map(val.Interface())
 		} else {
-			finalVal = val.Interface()
-		}
 
-		// override if the user passed a structure tag value
-		// ignore if the user passed the "-" value
-		if tag := field.Tag.Get(DefaultTagName); tag != "" {
-			name = tag
+			finalVal = val.Interface()
 		}
 
 		out[name] = finalVal
@@ -61,15 +68,26 @@ func Map(s interface{}) map[string]interface{} {
 //   // Field is ignored by this package.
 //   Field int `structure:"-"`
 //
+// A value with the option of "omitnested" stops iterating further if the type
+// is a struct. Example:
+//
+//   // Field is not processed further by this package.
+//   Field time.Time     `structure:"myName,omitnested"`
+//   Field *http.Request `structure:",omitnested"`
+//
 // Note that only exported fields of a struct can be accessed, non exported
 // fields  will be neglected.  It panics if s's kind is not struct.
 func Values(s interface{}) []interface{} {
 	v, fields := strctInfo(s)
 
 	t := make([]interface{}, 0)
+
 	for _, field := range fields {
 		val := v.FieldByName(field.Name)
-		if IsStruct(val.Interface()) {
+
+		_, tagOpts := parseTag(field.Tag.Get(DefaultTagName))
+
+		if IsStruct(val.Interface()) && !tagOpts.Has("omitnested") {
 			// look out for embedded structs, and convert them to a
 			// []interface{} to be added to the final values slice
 			for _, embeddedVal := range Values(val.Interface()) {
@@ -84,12 +102,57 @@ func Values(s interface{}) []interface{} {
 
 }
 
+// Fields returns a slice of field names. A struct tag with the content of "-"
+// ignores the checking of that particular field. Example:
+//
+//   // Field is ignored by this package.
+//   Field bool `structure:"-"`
+//
+// A value with the option of "omitnested" stops iterating further if the type
+// is a struct. Example:
+//
+//   // Field is not processed further by this package.
+//   Field time.Time     `structure:"myName,omitnested"`
+//   Field *http.Request `structure:",omitnested"`
+//
+// Note that only exported fields of a struct can be accessed, non exported
+// fields  will be neglected. It panics if s's kind is not struct.
+func Fields(s interface{}) []string {
+	v, fields := strctInfo(s)
+
+	keys := make([]string, 0)
+	for _, field := range fields {
+		val := v.FieldByName(field.Name)
+
+		_, tagOpts := parseTag(field.Tag.Get(DefaultTagName))
+
+		if IsStruct(val.Interface()) && !tagOpts.Has("omitnested") {
+			// look out for embedded structs, and convert them to a
+			// []string to be added to the final values slice
+			for _, embeddedVal := range Fields(val.Interface()) {
+				keys = append(keys, embeddedVal)
+			}
+		}
+
+		keys = append(keys, field.Name)
+	}
+
+	return keys
+}
+
 // IsZero returns true if all fields in a struct is a zero value (not
 // initialized) A struct tag with the content of "-" ignores the checking of
 // that particular field. Example:
 //
 //   // Field is ignored by this package.
 //   Field bool `structure:"-"`
+//
+// A value with the option of "omitnested" stops iterating further if the type
+// is a struct. Example:
+//
+//   // Field is not processed further by this package.
+//   Field time.Time     `structure:"myName,omitnested"`
+//   Field *http.Request `structure:",omitnested"`
 //
 // Note that only exported fields of a struct can be accessed, non exported
 // fields  will be neglected. It panics if s's kind is not struct.
@@ -99,7 +162,9 @@ func IsZero(s interface{}) bool {
 	for _, field := range fields {
 		val := v.FieldByName(field.Name)
 
-		if IsStruct(val.Interface()) {
+		_, tagOpts := parseTag(field.Tag.Get(DefaultTagName))
+
+		if IsStruct(val.Interface()) && !tagOpts.Has("omitnested") {
 			ok := IsZero(val.Interface())
 			if !ok {
 				return false
@@ -129,6 +194,13 @@ func IsZero(s interface{}) bool {
 //   // Field is ignored by this package.
 //   Field bool `structure:"-"`
 //
+// A value with the option of "omitnested" stops iterating further if the type
+// is a struct. Example:
+//
+//   // Field is not processed further by this package.
+//   Field time.Time     `structure:"myName,omitnested"`
+//   Field *http.Request `structure:",omitnested"`
+//
 // Note that only exported fields of a struct can be accessed, non exported
 // fields  will be neglected. It panics if s's kind is not struct.
 func HasZero(s interface{}) bool {
@@ -136,7 +208,10 @@ func HasZero(s interface{}) bool {
 
 	for _, field := range fields {
 		val := v.FieldByName(field.Name)
-		if IsStruct(val.Interface()) {
+
+		_, tagOpts := parseTag(field.Tag.Get(DefaultTagName))
+
+		if IsStruct(val.Interface()) && !tagOpts.Has("omitnested") {
 			ok := HasZero(val.Interface())
 			if ok {
 				return true
@@ -157,34 +232,6 @@ func HasZero(s interface{}) bool {
 	}
 
 	return false
-}
-
-// Fields returns a slice of field names. A struct tag with the content of "-"
-// ignores the checking of that particular field. Example:
-//
-//   // Field is ignored by this package.
-//   Field bool `structure:"-"`
-//
-// Note that only exported fields of a struct can be accessed, non exported
-// fields  will be neglected. It panics if s's kind is not struct.
-func Fields(s interface{}) []string {
-	v, fields := strctInfo(s)
-
-	keys := make([]string, 0)
-	for _, field := range fields {
-		val := v.FieldByName(field.Name)
-		if IsStruct(val.Interface()) {
-			// look out for embedded structs, and convert them to a
-			// []string to be added to the final values slice
-			for _, embeddedVal := range Fields(val.Interface()) {
-				keys = append(keys, embeddedVal)
-			}
-		}
-
-		keys = append(keys, field.Name)
-	}
-
-	return keys
 }
 
 // IsStruct returns true if the given variable is a struct or a pointer to
