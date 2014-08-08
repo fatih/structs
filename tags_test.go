@@ -7,6 +7,7 @@ func TestParseTag_Name(t *testing.T) {
 		tag string
 		has bool
 	}{
+		{"", false},
 		{"name", true},
 		{"name,opt", true},
 		{"name , opt, opt2", false}, // has a single whitespace
