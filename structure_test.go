@@ -200,7 +200,7 @@ func TestMap_Nested(t *testing.T) {
 	}
 
 	if name := in["Name"].(string); name != "example" {
-		t.Error("Map nested struct's name field should give example, got: %s", name)
+		t.Errorf("Map nested struct's name field should give example, got: %s", name)
 	}
 }
 
@@ -228,7 +228,7 @@ func TestMap_Anonymous(t *testing.T) {
 	}
 
 	if name := in["Name"].(string); name != "example" {
-		t.Error("Embedded A struct's Name field should give example, got: %s", name)
+		t.Errorf("Embedded A struct's Name field should give example, got: %s", name)
 	}
 }
 
@@ -771,13 +771,13 @@ func TestName(t *testing.T) {
 
 	n := Name(f)
 	if n != "Foo" {
-		t.Error("Name should return Foo, got: %s", n)
+		t.Errorf("Name should return Foo, got: %s", n)
 	}
 
 	unnamed := struct{ Name string }{Name: "Cihangir"}
 	m := Name(unnamed)
 	if m != "" {
-		t.Error("Name should return empty string for unnamed struct, got: %s", n)
+		t.Errorf("Name should return empty string for unnamed struct, got: %s", n)
 	}
 
 	defer func() {

@@ -4,6 +4,9 @@ package structure
 import "reflect"
 
 var (
+	// DefaultTagName is the default tag name for struct fields which provides
+	// a more granular to tweak certain structs. Lookup the necessary functions
+	// for more info.
 	DefaultTagName = "structure" // struct's field default tag name
 )
 
@@ -80,7 +83,7 @@ func Map(s interface{}) map[string]interface{} {
 func Values(s interface{}) []interface{} {
 	v, fields := strctInfo(s)
 
-	t := make([]interface{}, 0)
+	var t []interface{}
 
 	for _, field := range fields {
 		val := v.FieldByName(field.Name)
@@ -120,7 +123,8 @@ func Values(s interface{}) []interface{} {
 func Fields(s interface{}) []string {
 	v, fields := strctInfo(s)
 
-	keys := make([]string, 0)
+	var keys []string
+
 	for _, field := range fields {
 		val := v.FieldByName(field.Name)
 
@@ -245,8 +249,8 @@ func IsStruct(s interface{}) bool {
 	return t.Kind() == reflect.Struct
 }
 
-//  Name returns the structs's type name within its package. It returns an
-//  empty string for unnamed types. It panics if s's kind is not struct.
+// Name returns the structs's type name within its package. It returns an
+// empty string for unnamed types. It panics if s's kind is not struct.
 func Name(s interface{}) string {
 	t := reflect.TypeOf(s)
 
@@ -290,7 +294,7 @@ func strctInfo(s interface{}) (reflect.Value, []reflect.StructField) {
 	v := strctVal(s)
 	t := v.Type()
 
-	f := make([]reflect.StructField, 0)
+	var f []reflect.StructField
 
 	for i := 0; i < t.NumField(); i++ {
 		field := t.Field(i)
