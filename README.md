@@ -1,4 +1,4 @@
-# Structure [![GoDoc](https://godoc.org/github.com/fatih/structure?status.svg)](http://godoc.org/github.com/fatih/structure) [![Build Status](https://travis-ci.org/fatih/structure.svg)](https://travis-ci.org/fatih/structure)
+# Structure [![GoDoc](https://godoc.org/github.com/fatih/structure?status.svg)](http://godoc.org/github.com/fatih/structure) [![Build Status](https://travis-ci.org/fatih/structure.svg)](https://travis-ci.org/fatih/structure) [![Coverage Status](https://img.shields.io/coveralls/fatih/structure.svg)](https://coveralls.io/r/fatih/structure)
 
 Structure contains various utilities to work with Go (Golang) structs. It was
 initially used by me to convert a struct into a `map[string]interface{}`. With

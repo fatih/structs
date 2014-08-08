@@ -1,3 +1,11 @@
 language: go
 go: 1.3
-
+before_install:
+- go get github.com/axw/gocov/gocov
+- go get github.com/mattn/goveralls
+- go get code.google.com/p/go.tools/cmd/cover
+script:
+- $HOME/gopath/bin/goveralls -repotoken $COVERALLS_TOKEN
+env:
+  global:
+    secure: TQBWcnkeQqgqxeNazuMz8/u15jFCwUtiF6z4VCgbCcwPqUyaS1Xf1xtSisfgqFRUGKC7j+yGXC9F1BkGVkz5fKXm5nQxTZvNzjg/JALQZZaw4yHzcy+3lE/2hOQouwAZVsgi1yfu+renNmThdwbRzsQM4se6ENIO/zh16oY/Jbs=
