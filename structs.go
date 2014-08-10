@@ -32,8 +32,7 @@ func (s *Struct) Fields() []string {
 }
 
 // Field returns a new Field struct that provides several high level functions
-// around a single struct field entitiy. It panics if the field is not found or
-// is unexported.
+// around a single struct field entitiy. It panics if the field is not found.
 func (s *Struct) Field(name string) *Field {
 	f, ok := s.FieldOk(name)
 	if !ok {
@@ -44,8 +43,8 @@ func (s *Struct) Field(name string) *Field {
 }
 
 // Field returns a new Field struct that provides several high level functions
-// around a single struct field entitiy and a boolean indicating if the field
-// was found. It panics if the or is unexported.
+// around a single struct field entitiy. The boolean returns true if the field
+// was found.
 func (s *Struct) FieldOk(name string) (*Field, bool) {
 	v := strctVal(s.raw)
 	t := v.Type()
@@ -53,10 +52,6 @@ func (s *Struct) FieldOk(name string) (*Field, bool) {
 	field, ok := t.FieldByName(name)
 	if !ok {
 		return nil, false
-	}
-
-	if field.PkgPath != "" {
-		panic("unexported field access is not allowed")
 	}
 
 	return &Field{

@@ -30,3 +30,17 @@ func (f *Field) IsEmbedded() bool {
 func (f *Field) IsExported() bool {
 	return f.field.PkgPath == ""
 }
+
+// IsZero returns true if the given field is not initalized (has a zero value).
+// It panics if the field is not exported.
+func (f *Field) IsZero() bool {
+	zero := reflect.Zero(f.value.Type()).Interface()
+	current := f.Value()
+
+	return reflect.DeepEqual(current, zero)
+}
+
+// Name returns the name of the given field
+func (f *Field) Name() string {
+	return f.field.Name
+}
