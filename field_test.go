@@ -149,3 +149,27 @@ func TestField_Name(t *testing.T) {
 		t.Errorf("Fields 'A' field should have the name 'A'")
 	}
 }
+
+func TestField_Field(t *testing.T) {
+	s := newStruct()
+
+	e := s.Field("Bar").Field("E")
+
+	val, ok := e.Value().(string)
+	if !ok {
+		t.Error("The value of the field 'e' inside 'Bar' struct should be string")
+	}
+
+	if val != "example" {
+		t.Errorf("The value of 'e' should be 'example, got: %s", val)
+	}
+
+	defer func() {
+		err := recover()
+		if err == nil {
+			t.Error("Field of a non existing nested struct should panic")
+		}
+	}()
+
+	_ = s.Field("Bar").Field("e")
+}
