@@ -15,7 +15,8 @@ func (f *Field) Tag(key string) string {
 	return f.field.Tag.Get(key)
 }
 
-// Value returns the underlying value of of the field.
+// Value returns the underlying value of of the field. It panics if the field
+// is not exported.
 func (f *Field) Value() interface{} {
 	return f.value.Interface()
 }
@@ -23,4 +24,9 @@ func (f *Field) Value() interface{} {
 // IsEmbedded returns true if the given field is an anonymous field (embedded)
 func (f *Field) IsEmbedded() bool {
 	return f.field.Anonymous
+}
+
+// IsExported returns true if the given field is exported.
+func (f *Field) IsExported() bool {
+	return f.field.PkgPath == ""
 }
