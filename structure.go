@@ -10,7 +10,23 @@ var (
 	DefaultTagName = "structure" // struct's field default tag name
 )
 
-// Map converts the given s struct to a map[string]interface{}, where the keys
+// Struct encapsulates a struct type to provide several high level functions
+// around the structure.
+type Struct struct {
+	raw   interface{}
+	value reflect.Value
+}
+
+// New returns a new *Struct with the struct s. It panics if the s's kind is
+// not struct.
+func New(s interface{}) *Struct {
+	return &Struct{
+		raw:   s,
+		value: strctVal(s),
+	}
+}
+
+// Map converts the given struct to a map[string]interface{}, where the keys
 // of the map are the field names and the values of the map the associated
 // values of the fields. The default key string is the struct field name but
 // can be changed in the struct field's tag value. The "structure" key in the
@@ -32,15 +48,15 @@ var (
 //   Field *http.Request `structure:",omitnested"`
 //
 // Note that only exported fields of a struct can be accessed, non exported
-// fields will be neglected. It panics if s's kind is not struct.
-func Map(s interface{}) map[string]interface{} {
+// fields will be neglected.
+func (s *Struct) Map() map[string]interface{} {
 	out := make(map[string]interface{})
 
-	v, fields := strctInfo(s)
+	fields := s.structFields()
 
 	for _, field := range fields {
 		name := field.Name
-		val := v.FieldByName(name)
+		val := s.value.FieldByName(name)
 
 		var finalVal interface{}
 
@@ -79,14 +95,14 @@ func Map(s interface{}) map[string]interface{} {
 //   Field *http.Request `structure:",omitnested"`
 //
 // Note that only exported fields of a struct can be accessed, non exported
-// fields  will be neglected.  It panics if s's kind is not struct.
-func Values(s interface{}) []interface{} {
-	v, fields := strctInfo(s)
+// fields  will be neglected.
+func (s *Struct) Values() []interface{} {
+	fields := s.structFields()
 
 	var t []interface{}
 
 	for _, field := range fields {
-		val := v.FieldByName(field.Name)
+		val := s.value.FieldByName(field.Name)
 
 		_, tagOpts := parseTag(field.Tag.Get(DefaultTagName))
 
@@ -102,7 +118,6 @@ func Values(s interface{}) []interface{} {
 	}
 
 	return t
-
 }
 
 // Fields returns a slice of field names. A struct tag with the content of "-"
@@ -120,13 +135,13 @@ func Values(s interface{}) []interface{} {
 //
 // Note that only exported fields of a struct can be accessed, non exported
 // fields  will be neglected. It panics if s's kind is not struct.
-func Fields(s interface{}) []string {
-	v, fields := strctInfo(s)
+func (s *Struct) Fields() []string {
+	fields := s.structFields()
 
 	var keys []string
 
 	for _, field := range fields {
-		val := v.FieldByName(field.Name)
+		val := s.value.FieldByName(field.Name)
 
 		_, tagOpts := parseTag(field.Tag.Get(DefaultTagName))
 
@@ -142,6 +157,34 @@ func Fields(s interface{}) []string {
 	}
 
 	return keys
+}
+
+// Field returns a new Field struct that provides several high level functions
+// around a single struct field entitiy. It panics if the field is not found.
+func (s *Struct) Field(name string) *Field {
+	f, ok := s.FieldOk(name)
+	if !ok {
+		panic("field not found")
+	}
+
+	return f
+}
+
+// Field returns a new Field struct that provides several high level functions
+// around a single struct field entitiy. The boolean returns true if the field
+// was found.
+func (s *Struct) FieldOk(name string) (*Field, bool) {
+	t := s.value.Type()
+
+	field, ok := t.FieldByName(name)
+	if !ok {
+		return nil, false
+	}
+
+	return &Field{
+		field: field,
+		value: s.value.FieldByName(name),
+	}, true
 }
 
 // IsZero returns true if all fields in a struct is a zero value (not
@@ -160,11 +203,11 @@ func Fields(s interface{}) []string {
 //
 // Note that only exported fields of a struct can be accessed, non exported
 // fields  will be neglected. It panics if s's kind is not struct.
-func IsZero(s interface{}) bool {
-	v, fields := strctInfo(s)
+func (s *Struct) IsZero() bool {
+	fields := s.structFields()
 
 	for _, field := range fields {
-		val := v.FieldByName(field.Name)
+		val := s.value.FieldByName(field.Name)
 
 		_, tagOpts := parseTag(field.Tag.Get(DefaultTagName))
 
@@ -207,11 +250,11 @@ func IsZero(s interface{}) bool {
 //
 // Note that only exported fields of a struct can be accessed, non exported
 // fields  will be neglected. It panics if s's kind is not struct.
-func HasZero(s interface{}) bool {
-	v, fields := strctInfo(s)
+func (s *Struct) HasZero() bool {
+	fields := s.structFields()
 
 	for _, field := range fields {
-		val := v.FieldByName(field.Name)
+		val := s.value.FieldByName(field.Name)
 
 		_, tagOpts := parseTag(field.Tag.Get(DefaultTagName))
 
@@ -238,61 +281,17 @@ func HasZero(s interface{}) bool {
 	return false
 }
 
-// IsStruct returns true if the given variable is a struct or a pointer to
-// struct.
-func IsStruct(s interface{}) bool {
-	t := reflect.TypeOf(s)
-	if t.Kind() == reflect.Ptr {
-		t = t.Elem()
-	}
-
-	return t.Kind() == reflect.Struct
+// Name returns the structs's type name within its package. For more info refer
+// to Name() function.
+func (s *Struct) Name() string {
+	return s.value.Type().Name()
 }
 
-// Name returns the structs's type name within its package. It returns an
-// empty string for unnamed types. It panics if s's kind is not struct.
-func Name(s interface{}) string {
-	t := reflect.TypeOf(s)
-
-	if t.Kind() == reflect.Ptr {
-		t = t.Elem()
-	}
-
-	if t.Kind() != reflect.Struct {
-		panic("not struct")
-	}
-
-	return t.Name()
-}
-
-// Has returns true if the given field name exists for the struct s. It panic's
-// if s's kind is not struct.
-func Has(s interface{}, fieldName string) bool {
-	v, fields := strctInfo(s)
-
-	for _, field := range fields {
-		val := v.FieldByName(field.Name)
-
-		if IsStruct(val.Interface()) {
-			if ok := Has(val.Interface(), fieldName); ok {
-				return true
-			}
-		}
-
-		if field.Name == fieldName {
-			return true
-		}
-	}
-
-	return false
-}
-
-// strctInfo returns the struct value and the exported struct fields for a
-// given s struct. This is a convenient helper method to avoid duplicate code
-// in some of the functions.
-func strctInfo(s interface{}) (reflect.Value, []reflect.StructField) {
-	v := strctVal(s)
-	t := v.Type()
+// structFields returns the exported struct fields for a given s struct. This
+// is a convenient helper method to avoid duplicate code in some of the
+// functions.
+func (s *Struct) structFields() []reflect.StructField {
+	t := s.value.Type()
 
 	var f []reflect.StructField
 
@@ -311,7 +310,7 @@ func strctInfo(s interface{}) (reflect.Value, []reflect.StructField) {
 		f = append(f, field)
 	}
 
-	return v, f
+	return f
 }
 
 func strctVal(s interface{}) reflect.Value {
@@ -327,4 +326,51 @@ func strctVal(s interface{}) reflect.Value {
 	}
 
 	return v
+}
+
+// Map converts the given struct to a map[string]interface{}. For more info
+// refer to Struct types Map() method. It panics if s's kind is not struct.
+func Map(s interface{}) map[string]interface{} {
+	return New(s).Map()
+}
+
+// Values converts the given struct to a []interface{}. For more info refer to
+// Struct types Values() method.  It panics if s's kind is not struct.
+func Values(s interface{}) []interface{} {
+	return New(s).Values()
+}
+
+// Fields returns a slice of field names. For more info refer to Struct types
+// Fields() method.  It panics if s's kind is not struct.
+func Fields(s interface{}) []string {
+	return New(s).Fields()
+}
+
+// IsZero returns true if all fields is equal to a zero value. For more info
+// refer to Struct types IsZero() method.  It panics if s's kind is not struct.
+func IsZero(s interface{}) bool {
+	return New(s).IsZero()
+}
+
+// HasZero returns true if any field is equal to a zero value. For more info
+// refer to Struct types HasZero() method.  It panics if s's kind is not struct.
+func HasZero(s interface{}) bool {
+	return New(s).HasZero()
+}
+
+// IsStruct returns true if the given variable is a struct or a pointer to
+// struct.
+func IsStruct(s interface{}) bool {
+	t := reflect.TypeOf(s)
+	if t.Kind() == reflect.Ptr {
+		t = t.Elem()
+	}
+
+	return t.Kind() == reflect.Struct
+}
+
+// Name returns the structs's type name within its package. It returns an
+// empty string for unnamed types. It panics if s's kind is not struct.
+func Name(s interface{}) string {
+	return New(s).Name()
 }

@@ -1,6 +1,7 @@
 package structure
 
 import (
+	"fmt"
 	"reflect"
 	"testing"
 	"time"
@@ -29,6 +30,7 @@ func TestStructIndexes(t *testing.T) {
 	defer func() {
 		err := recover()
 		if err != nil {
+			fmt.Printf("err %+v\n", err)
 			t.Error("Using mixed indexes should not panic")
 		}
 	}()
@@ -732,33 +734,6 @@ func TestHasZero_Anonymous(t *testing.T) {
 	ok := HasZero(b)
 	if !ok {
 		t.Error("HasZero should return false because D is not initialized")
-	}
-}
-
-func TestHas(t *testing.T) {
-	type A struct {
-		Name string
-		D    string
-	}
-	a := A{Name: "example"}
-
-	type B struct {
-		A
-		C int
-	}
-	b := &B{C: 123}
-	b.A = a
-
-	if !Has(b, "Name") {
-		t.Error("Has should return true for Name, but it's false")
-	}
-
-	if Has(b, "NotAvailable") {
-		t.Error("Has should return false for NotAvailable, but it's true")
-	}
-
-	if !Has(b, "C") {
-		t.Error("Has should return true for C, but it's false")
 	}
 }
 

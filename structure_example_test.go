@@ -237,23 +237,3 @@ func ExampleHasZero() {
 	// true
 	// false
 }
-
-func ExampleHas() {
-	type Access struct {
-		Name         string
-		LastAccessed time.Time
-		Number       int
-	}
-
-	s := &Access{
-		Name:         "Fatih",
-		LastAccessed: time.Now(),
-		Number:       1234567,
-	}
-
-	found := Has(s, "LastAccessed")
-
-	fmt.Printf("Has: %+v\n", found)
-	// Output:
-	// Has: true
-}

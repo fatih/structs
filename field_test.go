@@ -173,3 +173,26 @@ func TestField_Field(t *testing.T) {
 
 	_ = s.Field("Bar").Field("e")
 }
+
+func TestField_FieldOk(t *testing.T) {
+	s := newStruct()
+
+	b, ok := s.FieldOk("Bar")
+	if !ok {
+		t.Error("The field 'Bar' should exists.")
+	}
+
+	e, ok := b.FieldOk("E")
+	if !ok {
+		t.Error("The field 'E' should exists.")
+	}
+
+	val, ok := e.Value().(string)
+	if !ok {
+		t.Error("The value of the field 'e' inside 'Bar' struct should be string")
+	}
+
+	if val != "example" {
+		t.Errorf("The value of 'e' should be 'example, got: %s", val)
+	}
+}

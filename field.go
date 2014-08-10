@@ -48,16 +48,27 @@ func (f *Field) Name() string {
 // Field returns the field from a nested struct. It panics if the nested struct
 // is not exported or if the field was not found.
 func (f *Field) Field(name string) *Field {
+	field, ok := f.FieldOk(name)
+	if !ok {
+		panic("field not found")
+	}
+
+	return field
+}
+
+// Field returns the field from a nested struct. It panics if the nested struct
+// is not exported or if the field was not found.
+func (f *Field) FieldOk(name string) (*Field, bool) {
 	v := strctVal(f.value.Interface())
 	t := v.Type()
 
 	field, ok := t.FieldByName(name)
 	if !ok {
-		panic("field not found")
+		return nil, false
 	}
 
 	return &Field{
 		field: field,
 		value: v.FieldByName(name),
-	}
+	}, true
 }
