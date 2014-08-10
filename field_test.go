@@ -101,3 +101,51 @@ func TestField_Value(t *testing.T) {
 	// should panic
 	_ = s.Field("d").Value()
 }
+
+func TestField_IsEmbedded(t *testing.T) {
+	s := newStruct()
+
+	if !s.Field("Bar").IsEmbedded() {
+		t.Errorf("Fields 'Bar' field is an embedded field")
+	}
+
+	if s.Field("d").IsEmbedded() {
+		t.Errorf("Fields 'd' field is not an embedded field")
+	}
+}
+
+func TestField_IsExported(t *testing.T) {
+	s := newStruct()
+
+	if !s.Field("Bar").IsExported() {
+		t.Errorf("Fields 'Bar' field is an exported field")
+	}
+
+	if !s.Field("A").IsExported() {
+		t.Errorf("Fields 'A' field is an exported field")
+	}
+
+	if s.Field("d").IsExported() {
+		t.Errorf("Fields 'd' field is not an exported field")
+	}
+}
+
+func TestField_IsZero(t *testing.T) {
+	s := newStruct()
+
+	if s.Field("A").IsZero() {
+		t.Errorf("Fields 'A' field is an initialized field")
+	}
+
+	if !s.Field("B").IsZero() {
+		t.Errorf("Fields 'B' field is not an initialized field")
+	}
+}
+
+func TestField_Name(t *testing.T) {
+	s := newStruct()
+
+	if s.Field("A").Name() != "A" {
+		t.Errorf("Fields 'A' field should have the name 'A'")
+	}
+}
