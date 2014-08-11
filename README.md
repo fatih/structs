@@ -48,6 +48,10 @@ m := s.Map()
 // => ["gopher", 123456, true]
 v := s.Values()
 
+// Convert the values of a struct to a []*Field
+// (see "Field methods" for more info about fields)
+f := s.Fields()
+
 // Check if any field of a struct is initialized or not.
 if s.HasZero() {
     fmt.Println("s has a zero value field")
@@ -67,19 +71,13 @@ Most of the struct methods are available as global functions without the need
 for a `New()` constructor:
 
 ```go
-m := structure.Map(s)
-v := structure.Values(s)
-f := structure.Fields(s)
-n := structure.Name(s)
-
-hasZero :=  structure.HasZero(s)
-isZero := structure.IsZero(s)
-
-// Check if it's a struct or a pointer to struct
-if structure.IsStruct(s) {
-    fmt.Println("s is a struct")
-}
-
+m := structure.Map(s)      // Get a map[string]interface{}
+v := structure.Values(s)   // Get a []interface{}
+f := structure.Fields(s)   // Get a []*Field
+n := structure.Name(s)     // Get the struct name
+h := structure.HasZero(s)  // Check if any field is initialized
+z := structure.IsZero(s)   // Check if all fields are initialized
+i := structure.IsStruct(s) // Check if s is a struct or a pointer to struct
 ```
 
 ### Field methods

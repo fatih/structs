@@ -5,6 +5,31 @@ import (
 	"time"
 )
 
+func ExampleNew() {
+	type Server struct {
+		Name    string
+		ID      int32
+		Enabled bool
+	}
+
+	server := &Server{
+		Name:    "Arslan",
+		ID:      123456,
+		Enabled: true,
+	}
+
+	s := New(server)
+
+	fmt.Printf("Name        : %v\n", s.Name())
+	fmt.Printf("Values      : %v\n", s.Values())
+	fmt.Printf("Value of ID : %v\n", s.Field("ID").Value())
+	// Output:
+	// Name        : Server
+	// Values      : [Arslan 123456 true]
+	// Value of ID : 123456
+
+}
+
 func ExampleMap() {
 	type Server struct {
 		Name    string
@@ -189,6 +214,40 @@ func ExampleFields_nested() {
 
 	// Output:
 	// Access.Person.Name: fatih
+}
+
+func ExampleField() {
+	type Person struct {
+		Name   string
+		Number int
+	}
+
+	type Access struct {
+		Person        Person
+		HasPermission bool
+		LastAccessed  time.Time
+	}
+
+	access := &Access{
+		Person:        Person{Name: "fatih", Number: 1234567},
+		LastAccessed:  time.Now(),
+		HasPermission: true,
+	}
+
+	// Create a new Struct type
+	s := New(access)
+
+	// Get the Field type for "Person" field
+	p := s.Field("Person")
+
+	// Get the underlying "Name field" and print the value of it
+	name := p.Field("Name")
+
+	fmt.Printf("Value of Person.Access.Name: %+v\n", name.Value())
+
+	// Output:
+	// Value of Person.Access.Name: fatih
+
 }
 
 func ExampleIsZero() {
