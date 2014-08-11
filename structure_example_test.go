@@ -5,6 +5,31 @@ import (
 	"time"
 )
 
+func ExampleNew() {
+	type Server struct {
+		Name    string
+		ID      int32
+		Enabled bool
+	}
+
+	server := &Server{
+		Name:    "Arslan",
+		ID:      123456,
+		Enabled: true,
+	}
+
+	s := New(server)
+
+	fmt.Printf("Name        : %v\n", s.Name())
+	fmt.Printf("Values      : %v\n", s.Values())
+	fmt.Printf("Value of ID : %v\n", s.Field("ID").Value())
+	// Output:
+	// Name        : Server
+	// Values      : [Arslan 123456 true]
+	// Value of ID : 123456
+
+}
+
 func ExampleMap() {
 	type Server struct {
 		Name    string
@@ -148,11 +173,16 @@ func ExampleFields() {
 		Number:       1234567,
 	}
 
-	m := Fields(s)
+	fields := Fields(s)
 
-	fmt.Printf("Fields: %+v\n", m)
+	for i, field := range fields {
+		fmt.Printf("[%d] %+v\n", i, field.Name())
+	}
+
 	// Output:
-	// Fields: [Name LastAccessed Number]
+	// [0] Name
+	// [1] LastAccessed
+	// [2] Number
 }
 
 func ExampleFields_nested() {
@@ -162,7 +192,7 @@ func ExampleFields_nested() {
 	}
 
 	type Access struct {
-		Person        Person `structure:",omitnested"`
+		Person        Person
 		HasPermission bool
 		LastAccessed  time.Time
 	}
@@ -173,13 +203,51 @@ func ExampleFields_nested() {
 		HasPermission: true,
 	}
 
-	// Let's get all fields from the struct s. Note that we don't include the
-	// fields from the Person field anymore due to "omitnested" tag option.
-	m := Fields(s)
+	// Let's get all fields from the struct s.
+	fields := Fields(s)
 
-	fmt.Printf("Fields: %+v\n", m)
+	for _, field := range fields {
+		if field.Name() == "Person" {
+			fmt.Printf("Access.Person.Name: %+v\n", field.Field("Name").Value())
+		}
+	}
+
 	// Output:
-	// Fields: [Person HasPermission LastAccessed]
+	// Access.Person.Name: fatih
+}
+
+func ExampleField() {
+	type Person struct {
+		Name   string
+		Number int
+	}
+
+	type Access struct {
+		Person        Person
+		HasPermission bool
+		LastAccessed  time.Time
+	}
+
+	access := &Access{
+		Person:        Person{Name: "fatih", Number: 1234567},
+		LastAccessed:  time.Now(),
+		HasPermission: true,
+	}
+
+	// Create a new Struct type
+	s := New(access)
+
+	// Get the Field type for "Person" field
+	p := s.Field("Person")
+
+	// Get the underlying "Name field" and print the value of it
+	name := p.Field("Name")
+
+	fmt.Printf("Value of Person.Access.Name: %+v\n", name.Value())
+
+	// Output:
+	// Value of Person.Access.Name: fatih
+
 }
 
 func ExampleIsZero() {
@@ -236,24 +304,4 @@ func ExampleHasZero() {
 	// Output:
 	// true
 	// false
-}
-
-func ExampleHas() {
-	type Access struct {
-		Name         string
-		LastAccessed time.Time
-		Number       int
-	}
-
-	s := &Access{
-		Name:         "Fatih",
-		LastAccessed: time.Now(),
-		Number:       1234567,
-	}
-
-	found := Has(s, "LastAccessed")
-
-	fmt.Printf("Has: %+v\n", found)
-	// Output:
-	// Has: true
 }

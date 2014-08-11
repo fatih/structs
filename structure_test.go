@@ -1,6 +1,7 @@
 package structure
 
 import (
+	"fmt"
 	"reflect"
 	"testing"
 	"time"
@@ -29,6 +30,7 @@ func TestStructIndexes(t *testing.T) {
 	defer func() {
 		err := recover()
 		if err != nil {
+			fmt.Printf("err %+v\n", err)
 			t.Error("Using mixed indexes should not panic")
 		}
 	}()
@@ -397,7 +399,7 @@ func TestFields(t *testing.T) {
 
 	inSlice := func(val string) bool {
 		for _, v := range s {
-			if reflect.DeepEqual(v, val) {
+			if reflect.DeepEqual(v.Name(), val) {
 				return true
 			}
 		}
@@ -414,27 +416,27 @@ func TestFields(t *testing.T) {
 func TestFields_OmitNested(t *testing.T) {
 	type A struct {
 		Name    string
-		Value   string
-		Number  int
 		Enabled bool
 	}
 	a := A{Name: "example"}
 
 	type B struct {
-		A A `structure:",omitnested"`
-		C int
+		A      A
+		C      int
+		Value  string `structure:"-"`
+		Number int
 	}
 	b := &B{A: a, C: 123}
 
 	s := Fields(b)
 
-	if len(s) != 2 {
+	if len(s) != 3 {
 		t.Errorf("Fields should omit nested struct. Expecting 2 got: %d", len(s))
 	}
 
 	inSlice := func(val interface{}) bool {
 		for _, v := range s {
-			if reflect.DeepEqual(v, val) {
+			if reflect.DeepEqual(v.Name(), val) {
 				return true
 			}
 		}
@@ -442,36 +444,6 @@ func TestFields_OmitNested(t *testing.T) {
 	}
 
 	for _, val := range []interface{}{"A", "C"} {
-		if !inSlice(val) {
-			t.Errorf("Fields should have the value %v", val)
-		}
-	}
-}
-
-func TestFields_Nested(t *testing.T) {
-	type A struct {
-		Name string
-	}
-	a := A{Name: "example"}
-
-	type B struct {
-		A A
-		C int
-	}
-	b := &B{A: a, C: 123}
-
-	s := Fields(b)
-
-	inSlice := func(val interface{}) bool {
-		for _, v := range s {
-			if reflect.DeepEqual(v, val) {
-				return true
-			}
-		}
-		return false
-	}
-
-	for _, val := range []interface{}{"Name", "A", "C"} {
 		if !inSlice(val) {
 			t.Errorf("Fields should have the value %v", val)
 		}
@@ -495,14 +467,14 @@ func TestFields_Anonymous(t *testing.T) {
 
 	inSlice := func(val interface{}) bool {
 		for _, v := range s {
-			if reflect.DeepEqual(v, val) {
+			if reflect.DeepEqual(v.Name(), val) {
 				return true
 			}
 		}
 		return false
 	}
 
-	for _, val := range []interface{}{"Name", "A", "C"} {
+	for _, val := range []interface{}{"A", "C"} {
 		if !inSlice(val) {
 			t.Errorf("Fields should have the value %v", val)
 		}
@@ -732,33 +704,6 @@ func TestHasZero_Anonymous(t *testing.T) {
 	ok := HasZero(b)
 	if !ok {
 		t.Error("HasZero should return false because D is not initialized")
-	}
-}
-
-func TestHas(t *testing.T) {
-	type A struct {
-		Name string
-		D    string
-	}
-	a := A{Name: "example"}
-
-	type B struct {
-		A
-		C int
-	}
-	b := &B{C: 123}
-	b.A = a
-
-	if !Has(b, "Name") {
-		t.Error("Has should return true for Name, but it's false")
-	}
-
-	if Has(b, "NotAvailable") {
-		t.Error("Has should return false for NotAvailable, but it's true")
-	}
-
-	if !Has(b, "C") {
-		t.Error("Has should return true for C, but it's false")
 	}
 }
 
