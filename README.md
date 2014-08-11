@@ -135,7 +135,7 @@ for _, f := range fields {
 
 	if f.IsExported() {
 		fmt.Printf("value   : %+v\n", f.Value())
-		fmt.Printf("is zero : %+v\n", f.Value())
+		fmt.Printf("is zero : %+v\n", f.IsZero())
 	}
 }
 ```
