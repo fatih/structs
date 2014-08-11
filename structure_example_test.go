@@ -148,11 +148,16 @@ func ExampleFields() {
 		Number:       1234567,
 	}
 
-	m := Fields(s)
+	fields := Fields(s)
 
-	fmt.Printf("Fields: %+v\n", m)
+	for i, field := range fields {
+		fmt.Printf("[%d] %+v\n", i, field.Name())
+	}
+
 	// Output:
-	// Fields: [Name LastAccessed Number]
+	// [0] Name
+	// [1] LastAccessed
+	// [2] Number
 }
 
 func ExampleFields_nested() {
@@ -162,7 +167,7 @@ func ExampleFields_nested() {
 	}
 
 	type Access struct {
-		Person        Person `structure:",omitnested"`
+		Person        Person
 		HasPermission bool
 		LastAccessed  time.Time
 	}
@@ -173,13 +178,17 @@ func ExampleFields_nested() {
 		HasPermission: true,
 	}
 
-	// Let's get all fields from the struct s. Note that we don't include the
-	// fields from the Person field anymore due to "omitnested" tag option.
-	m := Fields(s)
+	// Let's get all fields from the struct s.
+	fields := Fields(s)
 
-	fmt.Printf("Fields: %+v\n", m)
+	for _, field := range fields {
+		if field.Name() == "Person" {
+			fmt.Printf("Access.Person.Name: %+v\n", field.Field("Name").Value())
+		}
+	}
+
 	// Output:
-	// Fields: [Person HasPermission LastAccessed]
+	// Access.Person.Name: fatih
 }
 
 func ExampleIsZero() {

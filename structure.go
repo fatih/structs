@@ -120,43 +120,35 @@ func (s *Struct) Values() []interface{} {
 	return t
 }
 
-// Fields returns a slice of field names. A struct tag with the content of "-"
+// Fields returns a slice of Fields. A struct tag with the content of "-"
 // ignores the checking of that particular field. Example:
 //
 //   // Field is ignored by this package.
 //   Field bool `structure:"-"`
 //
-// A value with the option of "omitnested" stops iterating further if the type
-// is a struct. Example:
-//
-//   // Field is not processed further by this package.
-//   Field time.Time     `structure:"myName,omitnested"`
-//   Field *http.Request `structure:",omitnested"`
-//
-// Note that only exported fields of a struct can be accessed, non exported
-// fields  will be neglected. It panics if s's kind is not struct.
-func (s *Struct) Fields() []string {
-	fields := s.structFields()
+// It panics if s's kind is not struct.
+func (s *Struct) Fields() []*Field {
+	t := s.value.Type()
 
-	var keys []string
+	var fields []*Field
 
-	for _, field := range fields {
-		val := s.value.FieldByName(field.Name)
+	for i := 0; i < t.NumField(); i++ {
+		field := t.Field(i)
 
-		_, tagOpts := parseTag(field.Tag.Get(DefaultTagName))
-
-		if IsStruct(val.Interface()) && !tagOpts.Has("omitnested") {
-			// look out for embedded structs, and convert them to a
-			// []string to be added to the final values slice
-			for _, embeddedVal := range Fields(val.Interface()) {
-				keys = append(keys, embeddedVal)
-			}
+		if tag := field.Tag.Get(DefaultTagName); tag == "-" {
+			continue
 		}
 
-		keys = append(keys, field.Name)
+		f := &Field{
+			field: field,
+			value: s.value.FieldByName(field.Name),
+		}
+
+		fields = append(fields, f)
+
 	}
 
-	return keys
+	return fields
 }
 
 // Field returns a new Field struct that provides several high level functions
@@ -340,9 +332,9 @@ func Values(s interface{}) []interface{} {
 	return New(s).Values()
 }
 
-// Fields returns a slice of field names. For more info refer to Struct types
+// Fields returns a slice of *Field. For more info refer to Struct types
 // Fields() method.  It panics if s's kind is not struct.
-func Fields(s interface{}) []string {
+func Fields(s interface{}) []*Field {
 	return New(s).Fields()
 }
 

@@ -399,7 +399,7 @@ func TestFields(t *testing.T) {
 
 	inSlice := func(val string) bool {
 		for _, v := range s {
-			if reflect.DeepEqual(v, val) {
+			if reflect.DeepEqual(v.Name(), val) {
 				return true
 			}
 		}
@@ -416,27 +416,27 @@ func TestFields(t *testing.T) {
 func TestFields_OmitNested(t *testing.T) {
 	type A struct {
 		Name    string
-		Value   string
-		Number  int
 		Enabled bool
 	}
 	a := A{Name: "example"}
 
 	type B struct {
-		A A `structure:",omitnested"`
-		C int
+		A      A
+		C      int
+		Value  string `structure:"-"`
+		Number int
 	}
 	b := &B{A: a, C: 123}
 
 	s := Fields(b)
 
-	if len(s) != 2 {
+	if len(s) != 3 {
 		t.Errorf("Fields should omit nested struct. Expecting 2 got: %d", len(s))
 	}
 
 	inSlice := func(val interface{}) bool {
 		for _, v := range s {
-			if reflect.DeepEqual(v, val) {
+			if reflect.DeepEqual(v.Name(), val) {
 				return true
 			}
 		}
@@ -444,36 +444,6 @@ func TestFields_OmitNested(t *testing.T) {
 	}
 
 	for _, val := range []interface{}{"A", "C"} {
-		if !inSlice(val) {
-			t.Errorf("Fields should have the value %v", val)
-		}
-	}
-}
-
-func TestFields_Nested(t *testing.T) {
-	type A struct {
-		Name string
-	}
-	a := A{Name: "example"}
-
-	type B struct {
-		A A
-		C int
-	}
-	b := &B{A: a, C: 123}
-
-	s := Fields(b)
-
-	inSlice := func(val interface{}) bool {
-		for _, v := range s {
-			if reflect.DeepEqual(v, val) {
-				return true
-			}
-		}
-		return false
-	}
-
-	for _, val := range []interface{}{"Name", "A", "C"} {
 		if !inSlice(val) {
 			t.Errorf("Fields should have the value %v", val)
 		}
@@ -497,14 +467,14 @@ func TestFields_Anonymous(t *testing.T) {
 
 	inSlice := func(val interface{}) bool {
 		for _, v := range s {
-			if reflect.DeepEqual(v, val) {
+			if reflect.DeepEqual(v.Name(), val) {
 				return true
 			}
 		}
 		return false
 	}
 
-	for _, val := range []interface{}{"Name", "A", "C"} {
+	for _, val := range []interface{}{"A", "C"} {
 		if !inSlice(val) {
 			t.Errorf("Fields should have the value %v", val)
 		}

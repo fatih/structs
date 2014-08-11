@@ -56,8 +56,9 @@ func (f *Field) Field(name string) *Field {
 	return field
 }
 
-// Field returns the field from a nested struct. It panics if the nested struct
-// is not exported or if the field was not found.
+// Field returns the field from a nested struct. The boolean returns true if
+// the field was not found. It panics if the nested struct is not exported or
+// if the field was not found.
 func (f *Field) FieldOk(name string) (*Field, bool) {
 	v := strctVal(f.value.Interface())
 	t := v.Type()

@@ -18,54 +18,128 @@ Lets define and declare a struct
 
 ```go
 type Server struct {
-	Name    string
-	ID      int32
-	Enabled bool
+	Name        string `json:"name,omitempty"`
+	ID          int
+	Enabled     bool
+	users       []string // not exported
+	http.Server          // embedded
 }
 
-s := &Server{
+server := &Server{
 	Name:    "gopher",
 	ID:      123456,
 	Enabled: true,
 }
 ```
 
+### Struct methods
+
+Let's create a new `Struct` type. 
+
 ```go
+// Create a new struct type:
+s := structure.New(server)
+
 // Convert a struct to a map[string]interface{}
 // => {"Name":"gopher", "ID":123456, "Enabled":true}
-m := structure.Map(s)
+m := s.Map()
 
 // Convert the values of a struct to a []interface{}
-// => [123456, "gopher", true]
-v := structure.Values(s)
-
-// Convert the fields of a struct to a []string. 
-// => ["Name", "ID", "Enabled"]
-f := structure.Fields(s)
-
-// Return the struct name
-// => "Server"
-n := structure.Name(s)
-
-// Check if field name exists
-// => true
-h := structure.Has(s, "Enabled")
+// => ["gopher", 123456, true]
+v := s.Values()
 
 // Check if any field of a struct is initialized or not.
-if structure.HasZero(s) {
+if s.HasZero() {
     fmt.Println("s has a zero value field")
 }
 
 // Check if all fields of a struct is initialized or not.
-if structure.IsZero(s) {
+if s.IsZero() {
     fmt.Println("all fields of s is zero value")
 }
+
+// Return the struct name
+// => "Server"
+n := s.Name()
+```
+
+Most of the struct methods are available as global functions without the need
+for a `New()` constructor:
+
+```go
+m := structure.Map(s)
+v := structure.Values(s)
+f := structure.Fields(s)
+n := structure.Name(s)
+
+hasZero :=  structure.HasZero(s)
+isZero := structure.IsZero(s)
 
 // Check if it's a struct or a pointer to struct
 if structure.IsStruct(s) {
     fmt.Println("s is a struct")
 }
 
+```
+
+### Field methods
+
+We can easily examine a single Field for more detail. Below you can see how we
+get and interact with various field methods:
+
+
+```go
+s := structure.New(server)
+
+// Get the Field struct for the "Name" field
+name := s.Field("Name")
+
+// Get the underlying value,  value => "gopher"
+value := name.Value().(string)
+
+// Check if the field is exported or not
+if name.IsExported() {
+	fmt.Println("Name field is exported")
+}
+
+// Check if the value is a zero value, such as "" for string, 0 for int
+if !name.IsZero() {
+	fmt.Println("Name is initialized")
+}
+
+// Check if the field is an anonymous (embedded) field
+if !name.IsEmbedded() {
+	fmt.Println("Name is not an embedded field")
+}
+
+// Get the Field's tag value for tag name "json", tag value => "name,omitempty"
+tagValue := name.Tag("json")
+```
+
+Nested structs are supported too:
+
+```go
+addrField := s.Field("Server").Field("Addr")
+
+// Get the value for addr
+a := addrField.Value().(string)
+```
+
+We can also get a slice of Fields from the Struct type to iterate over all
+fields. This is handy if you whish to examine all fields:
+
+```go
+// Convert the fields of a struct to a []*Field
+fields := s.Fields()
+
+for _, f := range fields {
+	fmt.Printf("field name: %+v\n", f.Name())
+
+	if f.IsExported() {
+		fmt.Printf("value   : %+v\n", f.Value())
+		fmt.Printf("is zero : %+v\n", f.Value())
+	}
+}
 ```
 
 ## Credits
