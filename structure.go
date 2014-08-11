@@ -52,7 +52,7 @@ func New(s interface{}) *Struct {
 func (s *Struct) Map() map[string]interface{} {
 	out := make(map[string]interface{})
 
-	fields := s.structFields()
+	fields := s.StructFields()
 
 	for _, field := range fields {
 		name := field.Name
@@ -97,7 +97,7 @@ func (s *Struct) Map() map[string]interface{} {
 // Note that only exported fields of a struct can be accessed, non exported
 // fields  will be neglected.
 func (s *Struct) Values() []interface{} {
-	fields := s.structFields()
+	fields := s.StructFields()
 
 	var t []interface{}
 
@@ -196,7 +196,7 @@ func (s *Struct) FieldOk(name string) (*Field, bool) {
 // Note that only exported fields of a struct can be accessed, non exported
 // fields  will be neglected. It panics if s's kind is not struct.
 func (s *Struct) IsZero() bool {
-	fields := s.structFields()
+	fields := s.StructFields()
 
 	for _, field := range fields {
 		val := s.value.FieldByName(field.Name)
@@ -243,7 +243,7 @@ func (s *Struct) IsZero() bool {
 // Note that only exported fields of a struct can be accessed, non exported
 // fields  will be neglected. It panics if s's kind is not struct.
 func (s *Struct) HasZero() bool {
-	fields := s.structFields()
+	fields := s.StructFields()
 
 	for _, field := range fields {
 		val := s.value.FieldByName(field.Name)
@@ -279,10 +279,10 @@ func (s *Struct) Name() string {
 	return s.value.Type().Name()
 }
 
-// structFields returns the exported struct fields for a given s struct. This
+// StructFields returns the exported struct fields for a given s struct. This
 // is a convenient helper method to avoid duplicate code in some of the
 // functions.
-func (s *Struct) structFields() []reflect.StructField {
+func (s *Struct) StructFields() []reflect.StructField {
 	t := s.value.Type()
 
 	var f []reflect.StructField
