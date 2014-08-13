@@ -1,11 +1,11 @@
-package structure
+package structs
 
 import "testing"
 
 // A test struct that defines all cases
 type Foo struct {
 	A    string
-	B    int    `structure:"y"`
+	B    int    `structs:"y"`
 	C    bool   `json:"c"`
 	d    string // not exported
 	x    string `xml:"x"` // not exported, with tag

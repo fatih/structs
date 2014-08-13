@@ -1,6 +1,6 @@
-# Structure [![GoDoc](https://godoc.org/github.com/fatih/structure?status.svg)](http://godoc.org/github.com/fatih/structure) [![Build Status](https://travis-ci.org/fatih/structure.svg)](https://travis-ci.org/fatih/structure) [![Coverage Status](https://img.shields.io/coveralls/fatih/structure.svg)](https://coveralls.io/r/fatih/structure)
+# Structs [![GoDoc](https://godoc.org/github.com/fatih/structs?status.svg)](http://godoc.org/github.com/fatih/structs) [![Build Status](https://travis-ci.org/fatih/structs.svg)](https://travis-ci.org/fatih/structs) [![Coverage Status](https://img.shields.io/coveralls/fatih/structs.svg)](https://coveralls.io/r/fatih/structs)
 
-Structure contains various utilities to work with Go (Golang) structs. It was
+Structs contains various utilities to work with Go (Golang) structs. It was
 initially used by me to convert a struct into a `map[string]interface{}`. With
 time I've added other utilities for structs.  It's basically a high level
 package based on primitives from the reflect package. Feel free to add new
@@ -9,7 +9,7 @@ functions or improve the existing code.
 ## Install
 
 ```bash
-go get github.com/fatih/structure
+go get github.com/fatih/structs
 ```
 
 ## Usage and Examples
@@ -38,7 +38,7 @@ Let's create a new `Struct` type.
 
 ```go
 // Create a new struct type:
-s := structure.New(server)
+s := structs.New(server)
 
 // Convert a struct to a map[string]interface{}
 // => {"Name":"gopher", "ID":123456, "Enabled":true}
@@ -71,13 +71,13 @@ Most of the struct methods are available as global functions without the need
 for a `New()` constructor:
 
 ```go
-m := structure.Map(s)      // Get a map[string]interface{}
-v := structure.Values(s)   // Get a []interface{}
-f := structure.Fields(s)   // Get a []*Field
-n := structure.Name(s)     // Get the struct name
-h := structure.HasZero(s)  // Check if any field is initialized
-z := structure.IsZero(s)   // Check if all fields are initialized
-i := structure.IsStruct(s) // Check if s is a struct or a pointer to struct
+m := structs.Map(s)      // Get a map[string]interface{}
+v := structs.Values(s)   // Get a []interface{}
+f := structs.Fields(s)   // Get a []*Field
+n := structs.Name(s)     // Get the struct name
+h := structs.HasZero(s)  // Check if any field is initialized
+z := structs.IsZero(s)   // Check if all fields are initialized
+i := structs.IsStruct(s) // Check if s is a struct or a pointer to struct
 ```
 
 ### Field methods
@@ -87,7 +87,7 @@ get and interact with various field methods:
 
 
 ```go
-s := structure.New(server)
+s := structs.New(server)
 
 // Get the Field struct for the "Name" field
 name := s.Field("Name")

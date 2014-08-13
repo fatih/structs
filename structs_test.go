@@ -1,4 +1,4 @@
-package structure
+package structs
 
 import (
 	"fmt"
@@ -85,9 +85,9 @@ func TestMap(t *testing.T) {
 
 func TestMap_Tag(t *testing.T) {
 	var T = struct {
-		A string `structure:"x"`
-		B int    `structure:"y"`
-		C bool   `structure:"z"`
+		A string `structs:"x"`
+		B int    `structs:"y"`
+		C bool   `structs:"z"`
 	}{
 		A: "a-value",
 		B: 2,
@@ -152,7 +152,7 @@ func TestMap_OmitNested(t *testing.T) {
 	type A struct {
 		Name  string
 		Value string
-		Time  time.Time `structure:",omitnested"`
+		Time  time.Time `structs:",omitnested"`
 	}
 	a := A{Time: time.Now()}
 
@@ -292,7 +292,7 @@ func TestValues_OmitNested(t *testing.T) {
 	}
 
 	type B struct {
-		A A `structure:",omitnested"`
+		A A `structs:",omitnested"`
 		C int
 	}
 	b := &B{A: a, C: 123}
@@ -423,7 +423,7 @@ func TestFields_OmitNested(t *testing.T) {
 	type B struct {
 		A      A
 		C      int
-		Value  string `structure:"-"`
+		Value  string `structs:"-"`
 		Number int
 	}
 	b := &B{A: a, C: 123}
@@ -485,7 +485,7 @@ func TestIsZero(t *testing.T) {
 	var T = struct {
 		A string
 		B int
-		C bool `structure:"-"`
+		C bool `structs:"-"`
 		D []string
 	}{}
 
@@ -528,7 +528,7 @@ func TestIsZero_OmitNested(t *testing.T) {
 	a := A{Name: "example"}
 
 	type B struct {
-		A A `structure:",omitnested"`
+		A A `structs:",omitnested"`
 		C int
 	}
 	b := &B{A: a, C: 123}
@@ -609,7 +609,7 @@ func TestHasZero(t *testing.T) {
 	var T = struct {
 		A string
 		B int
-		C bool `structure:"-"`
+		C bool `structs:"-"`
 		D []string
 	}{
 		A: "a-value",
@@ -655,7 +655,7 @@ func TestHasZero_OmitNested(t *testing.T) {
 	a := A{Name: "example"}
 
 	type B struct {
-		A A `structure:",omitnested"`
+		A A `structs:",omitnested"`
 		C int
 	}
 	b := &B{A: a, C: 123}
