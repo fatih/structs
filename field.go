@@ -54,6 +54,11 @@ func (f *Field) Name() string {
 	return f.field.Name
 }
 
+// Kind returns the fields kind, such as "string", "map", "bool", etc ..
+func (f *Field) Kind() reflect.Kind {
+	return f.value.Kind()
+}
+
 // Set sets the field to given value v. It retuns an error if the field is not
 // settable (not addresable or not exported) or if the given value's type
 // doesn't match the fields type.

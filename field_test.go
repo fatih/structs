@@ -1,6 +1,9 @@
 package structs
 
-import "testing"
+import (
+	"reflect"
+	"testing"
+)
 
 // A test struct that defines all cases
 type Foo struct {
@@ -107,6 +110,26 @@ func TestField(t *testing.T) {
 	}()
 
 	_ = s.Field("no-field")
+}
+
+func TestField_Kind(t *testing.T) {
+	s := newStruct()
+
+	f := s.Field("A")
+	if f.Kind() != reflect.String {
+		t.Errorf("Field A has wrong kind: %s want: %s", f.Kind(), reflect.String)
+	}
+
+	f = s.Field("B")
+	if f.Kind() != reflect.Int {
+		t.Errorf("Field B has wrong kind: %s want: %s", f.Kind(), reflect.Int)
+	}
+
+	// unexported
+	f = s.Field("d")
+	if f.Kind() != reflect.String {
+		t.Errorf("Field d has wrong kind: %s want: %s", f.Kind(), reflect.String)
+	}
 }
 
 func TestField_Tag(t *testing.T) {

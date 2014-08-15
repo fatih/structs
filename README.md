@@ -98,6 +98,9 @@ value := name.Value().(string)
 // Set the field's value
 name.Set("another gopher")
 
+// Get the field's kind, kind =>  "string"
+name.Kind()
+
 // Check if the field is exported or not
 if name.IsExported() {
 	fmt.Println("Name field is exported")
