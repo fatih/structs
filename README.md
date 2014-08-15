@@ -95,6 +95,9 @@ name := s.Field("Name")
 // Get the underlying value,  value => "gopher"
 value := name.Value().(string)
 
+// Set the field's value
+name.Set("another gopher")
+
 // Check if the field is exported or not
 if name.IsExported() {
 	fmt.Println("Name field is exported")

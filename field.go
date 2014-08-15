@@ -1,6 +1,15 @@
 package structs
 
-import "reflect"
+import (
+	"errors"
+	"fmt"
+	"reflect"
+)
+
+var (
+	errNotExported = errors.New("field is not exported")
+	errNotSettable = errors.New("field is not settable")
+)
 
 // Field represents a single struct field that encapsulates high level
 // functions around the field.
@@ -43,6 +52,32 @@ func (f *Field) IsZero() bool {
 // Name returns the name of the given field
 func (f *Field) Name() string {
 	return f.field.Name
+}
+
+// Set sets the field to given value v. It retuns an error if the field is not
+// settable (not addresable or not exported) or if the given value's type
+// doesn't match the fields type.
+func (f *Field) Set(val interface{}) error {
+	// needed to make the field settable
+	v := reflect.Indirect(f.value)
+
+	if !f.IsExported() {
+		return errNotExported
+	}
+
+	// do we get here? not sure...
+	if !v.CanSet() {
+		return errNotSettable
+	}
+
+	given := reflect.ValueOf(val)
+
+	if v.Kind() != given.Kind() {
+		return fmt.Errorf("wrong kind: %s want: %s", given.Kind(), v.Kind())
+	}
+
+	v.Set(given)
+	return nil
 }
 
 // Field returns the field from a nested struct. It panics if the nested struct
