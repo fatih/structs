@@ -127,6 +127,9 @@ addrField := s.Field("Server").Field("Addr")
 
 // Get the value for addr
 a := addrField.Value().(string)
+
+// Or get all fields
+httpServer := s.Field("Server").Fields()
 ```
 
 We can also get a slice of Fields from the Struct type to iterate over all
