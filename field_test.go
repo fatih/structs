@@ -96,6 +96,18 @@ func TestField_Set(t *testing.T) {
 		t.Error(err)
 	}
 
+	// let's set a pointer to struct
+	b := &Bar{
+		E: "gopher",
+		F: 2,
+	}
+
+	f = s.Field("Bar")
+	err = f.Set(b)
+	if err != nil {
+		t.Error(err)
+	}
+
 	// TODO: let's access a non addresable field, which should give an error
 }
 
