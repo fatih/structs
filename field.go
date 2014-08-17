@@ -85,6 +85,17 @@ func (f *Field) Set(val interface{}) error {
 	return nil
 }
 
+// Fields returns a slice of Fields. A struct tag with the content of "-"
+// ignores the checking of that particular field. Example:
+//
+//   // Field is ignored by this package.
+//   Field bool `structs:"-"`
+//
+// It panics if s's kind is not struct.
+func (f *Field) Fields() []*Field {
+	return getFields(f.value)
+}
+
 // Field returns the field from a nested struct. It panics if the nested struct
 // is not exported or if the field was not found.
 func (f *Field) Field(name string) *Field {

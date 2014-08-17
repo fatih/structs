@@ -128,7 +128,15 @@ func (s *Struct) Values() []interface{} {
 //
 // It panics if s's kind is not struct.
 func (s *Struct) Fields() []*Field {
-	t := s.value.Type()
+	return getFields(s.value)
+}
+
+func getFields(v reflect.Value) []*Field {
+	if v.Kind() == reflect.Ptr {
+		v = v.Elem()
+	}
+
+	t := v.Type()
 
 	var fields []*Field
 
@@ -141,7 +149,7 @@ func (s *Struct) Fields() []*Field {
 
 		f := &Field{
 			field: field,
-			value: s.value.FieldByName(field.Name),
+			value: v.FieldByName(field.Name),
 		}
 
 		fields = append(fields, f)

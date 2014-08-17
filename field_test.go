@@ -257,6 +257,15 @@ func TestField_Field(t *testing.T) {
 	_ = s.Field("Bar").Field("e")
 }
 
+func TestField_Fields(t *testing.T) {
+	s := newStruct()
+	fields := s.Field("Bar").Fields()
+
+	if len(fields) != 3 {
+		t.Errorf("We expect 3 fields in embedded struct, was: %d", len(fields))
+	}
+}
+
 func TestField_FieldOk(t *testing.T) {
 	s := newStruct()
 
