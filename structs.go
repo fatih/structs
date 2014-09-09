@@ -1,7 +1,11 @@
 // Package structs contains various utilities functions to work with structs.
 package structs
 
-import "reflect"
+import (
+        "reflect"
+        "errors"
+        "strings"
+)
 
 var (
 	// DefaultTagName is the default tag name for struct fields which provides
@@ -13,17 +17,29 @@ var (
 // Struct encapsulates a struct type to provide several high level functions
 // around the struct.
 type Struct struct {
-	raw   interface{}
-	value reflect.Value
+        raw   interface{}
+        value reflect.Value
+        tagMap map[string]string
 }
 
 // New returns a new *Struct with the struct s. It panics if the s's kind is
 // not struct.
-func New(s interface{}) *Struct {
-	return &Struct{
-		raw:   s,
-		value: strctVal(s),
-	}
+func New(raw interface{}) *Struct {
+        value := strctVal(raw)
+        fields := structFields(value)
+        tagMap := map[string]string{}
+        for _, f := range fields {
+                for _, t := range strings.Split(string(f.Tag), " ") {
+                        name := strings.Replace(t, "\"", "", -1)
+                        tagMap[name] = f.Name
+                }
+        }
+        return &Struct{
+                raw:    raw,
+                value:  value,
+                tagMap: tagMap,
+        }
+
 }
 
 // Map converts the given struct to a map[string]interface{}, where the keys
@@ -291,7 +307,11 @@ func (s *Struct) Name() string {
 // is a convenient helper method to avoid duplicate code in some of the
 // functions.
 func (s *Struct) structFields() []reflect.StructField {
-	t := s.value.Type()
+        return structFields(s.value)
+}
+
+func structFields(value reflect.Value) []reflect.StructField {
+	t := value.Type()
 
 	var f []reflect.StructField
 
@@ -372,5 +392,14 @@ func IsStruct(s interface{}) bool {
 // Name returns the structs's type name within its package. It returns an
 // empty string for unnamed types. It panics if s's kind is not struct.
 func Name(s interface{}) string {
-	return New(s).Name()
+        return New(s).Name()
+}
+
+// GetByTag returns a value based on it's tag name
+func (s *Struct) GetFieldByTag(name string) (*Field, error) {
+        f, ok := s.tagMap[name]
+        if !ok {
+                return nil, errors.New("No Field found with Tag called '" + name + "'.")
+        }
+        return s.Field(f), nil
 }
