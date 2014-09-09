@@ -11,10 +11,16 @@ type Foo struct {
 	B    int    `structs:"y"`
 	C    bool   `json:"c"`
 	d    string // not exported
+	E    *Baz
 	x    string `xml:"x"` // not exported, with tag
 	Y    []string
 	Z    map[string]interface{}
 	*Bar // embedded
+}
+
+type Baz struct {
+	A string
+	B int
 }
 
 type Bar struct {
@@ -35,6 +41,7 @@ func newStruct() *Struct {
 		A: "gopher",
 		C: true,
 		d: "small",
+		E: nil,
 		Y: []string{"example"},
 		Z: nil,
 	}
@@ -108,7 +115,22 @@ func TestField_Set(t *testing.T) {
 		t.Error(err)
 	}
 
-	// TODO: let's access a non addresable field, which should give an error
+	baz := &Baz{
+		A: "helloWorld",
+		B: 42,
+	}
+
+	f = s.Field("E")
+	err = f.Set(baz)
+	if err != nil {
+		t.Error(err)
+	}
+
+	ba := s.Field("E").Value().(*Baz)
+
+	if ba.A != "helloWorld" {
+		t.Errorf("could not set baz. Got: %s Want: helloWorld", ba.A)
+	}
 }
 
 func TestField(t *testing.T) {

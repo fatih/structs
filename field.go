@@ -63,29 +63,23 @@ func (f *Field) Kind() reflect.Kind {
 // settable (not addresable or not exported) or if the given value's type
 // doesn't match the fields type.
 func (f *Field) Set(val interface{}) error {
-	// needed to make the field settable
-	v := reflect.Indirect(f.value)
-
+	// we can't set unexported fields, so be sure this field is exported
 	if !f.IsExported() {
 		return errNotExported
 	}
 
 	// do we get here? not sure...
-	if !v.CanSet() {
+	if !f.value.CanSet() {
 		return errNotSettable
 	}
 
 	given := reflect.ValueOf(val)
 
-	if given.Kind() == reflect.Ptr {
-		given = given.Elem()
+	if f.value.Kind() != given.Kind() {
+		return fmt.Errorf("wrong kind. got: %s want: %s", given.Kind(), f.value.Kind())
 	}
 
-	if v.Kind() != given.Kind() {
-		return fmt.Errorf("wrong kind: %s want: %s", given.Kind(), v.Kind())
-	}
-
-	v.Set(given)
+	f.value.Set(given)
 	return nil
 }
 
