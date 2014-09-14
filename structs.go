@@ -35,17 +35,28 @@ func New(s interface{}) *Struct {
 //   // Field appears in map as key "myName".
 //   Name string `structs:"myName"`
 //
-// A value with the content of "-" ignores that particular field. Example:
+// A tag value with the content of "-" ignores that particular field. Example:
 //
 //   // Field is ignored by this package.
 //   Field bool `structs:"-"`
 //
-// A value with the option of "omitnested" stops iterating further if the type
+// A tag value with the option of "omitnested" stops iterating further if the type
 // is a struct. Example:
 //
 //   // Field is not processed further by this package.
 //   Field time.Time     `structs:"myName,omitnested"`
 //   Field *http.Request `structs:",omitnested"`
+//
+// A tag value with the option of "omitempty" ignores that particular field if
+// the field value is empty. Example:
+//
+//   // Field appears in map as key "myName", but the field is
+//   // skipped if empty.
+//   Field string `structs:"myName,omitempty"`
+//
+//   // Field appears in map as key "Field" (the default), but
+//   // the field is skipped if empty.
+//   Field string `structs:",omitempty"`
 //
 // Note that only exported fields of a struct can be accessed, non exported
 // fields will be neglected.
@@ -63,6 +74,17 @@ func (s *Struct) Map() map[string]interface{} {
 		tagName, tagOpts := parseTag(field.Tag.Get(DefaultTagName))
 		if tagName != "" {
 			name = tagName
+		}
+
+		// if the value is a zero value and the field is marked as omitempty do
+		// not include
+		if tagOpts.Has("omitempty") {
+			zero := reflect.Zero(val.Type()).Interface()
+			current := val.Interface()
+
+			if reflect.DeepEqual(current, zero) {
+				continue
+			}
 		}
 
 		if IsStruct(val.Interface()) && !tagOpts.Has("omitnested") {
