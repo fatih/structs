@@ -76,7 +76,8 @@ func (s *Struct) Map() map[string]interface{} {
 			name = tagName
 		}
 
-		// if the value is a zero value do not include
+		// if the value is a zero value and the field is marked as omitempty do
+		// not include
 		if tagOpts.Has("omitempty") {
 			zero := reflect.Zero(val.Type()).Interface()
 			current := val.Interface()

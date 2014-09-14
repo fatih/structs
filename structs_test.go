@@ -148,6 +148,27 @@ func TestMap_CustomTag(t *testing.T) {
 
 }
 
+func TestMap_OmitEmpty(t *testing.T) {
+	type A struct {
+		Name  string
+		Value string    `structs:",omitempty"`
+		Time  time.Time `structs:",omitempty"`
+	}
+	a := A{}
+
+	m := Map(a)
+
+	_, ok := m["Value"].(map[string]interface{})
+	if ok {
+		t.Error("Map should not contain the Value field that is tagged as omitempty")
+	}
+
+	_, ok = m["Time"].(map[string]interface{})
+	if ok {
+		t.Error("Map should not contain the Time field that is tagged as omitempty")
+	}
+}
+
 func TestMap_OmitNested(t *testing.T) {
 	type A struct {
 		Name  string
