@@ -111,6 +111,28 @@ func ExampleMap_nested() {
 	// 2013-02-03 00:00:00 +0000 UTC
 }
 
+func ExampleMap_omitEmpty() {
+	// By default field with struct types of zero values are processed too. We
+	// can stop processing them via "omitempty" tag option.
+	type Server struct {
+		Name     string `structs:",omitempty"`
+		ID       int32  `structs:"server_id,omitempty"`
+		Location string
+	}
+
+	// Only add location
+	s := &Server{
+		Location: "Tokyo",
+	}
+
+	m := Map(s)
+
+	// map contains only the Location field
+	fmt.Printf("%v\n", m)
+	// Output:
+	// map[Location:Tokyo]
+}
+
 func ExampleValues() {
 	type Server struct {
 		Name    string
@@ -129,6 +151,28 @@ func ExampleValues() {
 	fmt.Printf("Values: %+v\n", m)
 	// Output:
 	// Values: [Fatih 135790 false]
+}
+
+func ExampleValues_omitEmpty() {
+	// By default field with struct types of zero values are processed too. We
+	// can stop processing them via "omitempty" tag option.
+	type Server struct {
+		Name     string `structs:",omitempty"`
+		ID       int32  `structs:"server_id,omitempty"`
+		Location string
+	}
+
+	// Only add location
+	s := &Server{
+		Location: "Ankara",
+	}
+
+	m := Values(s)
+
+	// values contains only the Location field
+	fmt.Printf("Values: %+v\n", m)
+	// Output:
+	// Values: [Ankara]
 }
 
 func ExampleValues_tags() {
