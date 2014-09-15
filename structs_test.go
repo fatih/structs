@@ -301,6 +301,24 @@ func TestValues(t *testing.T) {
 	}
 }
 
+func TestValues_OmitEmpty(t *testing.T) {
+	type A struct {
+		Name  string
+		Value int `structs:",omitempty"`
+	}
+
+	a := A{Name: "example"}
+	s := Values(a)
+
+	if len(s) != 1 {
+		t.Errorf("Values of omitted empty fields should be not counted")
+	}
+
+	if s[0].(string) != "example" {
+		t.Errorf("Values of omitted empty fields should left the value example")
+	}
+}
+
 func TestValues_OmitNested(t *testing.T) {
 	type A struct {
 		Name  string

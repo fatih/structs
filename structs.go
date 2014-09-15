@@ -112,9 +112,15 @@ func (s *Struct) Map() map[string]interface{} {
 // A value with the option of "omitnested" stops iterating further if the type
 // is a struct. Example:
 //
-//   // Field is not processed further by this package.
-//   Field time.Time     `structs:"myName,omitnested"`
+//   // Fields is not processed further by this package.
+//   Field time.Time     `structs:",omitnested"`
 //   Field *http.Request `structs:",omitnested"`
+//
+// A tag value with the option of "omitempty" ignores that particular field and
+// is not added to the values if the field value is empty. Example:
+//
+//   // Field is skipped if empty
+//   Field string `structs:",omitempty"`
 //
 // Note that only exported fields of a struct can be accessed, non exported
 // fields  will be neglected.
@@ -127,6 +133,17 @@ func (s *Struct) Values() []interface{} {
 		val := s.value.FieldByName(field.Name)
 
 		_, tagOpts := parseTag(field.Tag.Get(DefaultTagName))
+
+		// if the value is a zero value and the field is marked as omitempty do
+		// not include
+		if tagOpts.Has("omitempty") {
+			zero := reflect.Zero(val.Type()).Interface()
+			current := val.Interface()
+
+			if reflect.DeepEqual(current, zero) {
+				continue
+			}
+		}
 
 		if IsStruct(val.Interface()) && !tagOpts.Has("omitnested") {
 			// look out for embedded structs, and convert them to a
@@ -182,7 +199,7 @@ func getFields(v reflect.Value) []*Field {
 }
 
 // Field returns a new Field struct that provides several high level functions
-// around a single struct field entitiy. It panics if the field is not found.
+// around a single struct field entity. It panics if the field is not found.
 func (s *Struct) Field(name string) *Field {
 	f, ok := s.FieldOk(name)
 	if !ok {
@@ -193,7 +210,7 @@ func (s *Struct) Field(name string) *Field {
 }
 
 // Field returns a new Field struct that provides several high level functions
-// around a single struct field entitiy. The boolean returns true if the field
+// around a single struct field entity. The boolean returns true if the field
 // was found.
 func (s *Struct) FieldOk(name string) (*Field, bool) {
 	t := s.value.Type()
