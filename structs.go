@@ -402,6 +402,9 @@ func HasZero(s interface{}) bool {
 func IsStruct(s interface{}) bool {
 	t := reflect.TypeOf(s)
 	if t.Kind() == reflect.Ptr {
+		if reflect.ValueOf(s).IsNil() {
+			return false
+		}
 		t = t.Elem()
 	}
 

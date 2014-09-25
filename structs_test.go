@@ -773,3 +773,28 @@ func TestName(t *testing.T) {
 
 	Name([]string{})
 }
+
+func TestNestedNilPointer(t *testing.T) {
+	type Foo struct {
+	}
+	type Bar struct {
+		F *Foo
+	}
+
+	b := Bar{}
+
+	isStruct := IsStruct(b)
+	if !isStruct {
+		t.Error("Struct with internal nil pointer should be recognized")
+	}
+
+	New(b).Map()
+	defer func() {
+		err := recover()
+		if err != nil {
+			fmt.Printf("err %+v\n", err)
+			t.Error("Internal nil pointer should not panic")
+		}
+	}()
+
+}
