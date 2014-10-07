@@ -92,7 +92,6 @@ func (s *Struct) Map() map[string]interface{} {
 			// map[string]interface{} too
 			finalVal = Map(val.Interface())
 		} else {
-
 			finalVal = val.Interface()
 		}
 
@@ -400,12 +399,17 @@ func HasZero(s interface{}) bool {
 // IsStruct returns true if the given variable is a struct or a pointer to
 // struct.
 func IsStruct(s interface{}) bool {
-	t := reflect.TypeOf(s)
-	if t.Kind() == reflect.Ptr {
-		t = t.Elem()
+	v := reflect.ValueOf(s)
+	if v.Kind() == reflect.Ptr {
+		v = v.Elem()
 	}
 
-	return t.Kind() == reflect.Struct
+	// uninitialized zero value of a struct
+	if v.Kind() == reflect.Invalid {
+		return false
+	}
+
+	return v.Kind() == reflect.Struct
 }
 
 // Name returns the structs's type name within its package. It returns an

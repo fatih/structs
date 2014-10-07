@@ -773,3 +773,52 @@ func TestName(t *testing.T) {
 
 	Name([]string{})
 }
+
+func TestNestedNilPointer(t *testing.T) {
+	type Collar struct {
+		Engraving string
+	}
+
+	type Dog struct {
+		Name   string
+		Collar *Collar
+	}
+
+	type Person struct {
+		Name string
+		Dog  *Dog
+	}
+
+	person := &Person{
+		Name: "John",
+	}
+
+	personWithDog := &Person{
+		Name: "Ron",
+		Dog: &Dog{
+			Name: "Rover",
+		},
+	}
+
+	personWithDogWithCollar := &Person{
+		Name: "Kon",
+		Dog: &Dog{
+			Name: "Ruffles",
+			Collar: &Collar{
+				Engraving: "If lost, call Kon",
+			},
+		},
+	}
+
+	defer func() {
+		err := recover()
+		if err != nil {
+			fmt.Printf("err %+v\n", err)
+			t.Error("Internal nil pointer should not panic")
+		}
+	}()
+
+	_ = Map(person)                  // Panics
+	_ = Map(personWithDog)           // Panics
+	_ = Map(personWithDogWithCollar) // Doesn't panic
+}
