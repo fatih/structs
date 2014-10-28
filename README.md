@@ -45,16 +45,16 @@ v := structs.Values(server)
 
 // Convert the values of a struct to a []*Field
 // (see "Field methods" for more info about fields)
-f := structs.Fields(server) // Get a []*Field
+f := structs.Fields(server)
 
 // Return the struct name => "Server"
-n := structs.Name(server) // Get the struct name
+n := structs.Name(server)
 
 // Check if any field of a struct is initialized or not.
-h := structs.HasZero(server) // Check if any field is initialized
+h := structs.HasZero(server)
 
 // Check if all fields of a struct is initialized or not.
-z := structs.IsZero(server) // Check if all fields are initialized
+z := structs.IsZero(server)
 
 // Check if server is a struct or a pointer to struct
 i := structs.IsStruct(server)
