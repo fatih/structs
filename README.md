@@ -14,7 +14,9 @@ go get github.com/fatih/structs
 
 ## Usage and Examples
 
-Lets define and declare a struct
+Just like the standard lib `strings`, `bytes` and co packages, `structs` has
+many global functions to manipulate or organize your struct data Lets define
+and declare a struct:
 
 ```go
 type Server struct {
@@ -32,52 +34,50 @@ server := &Server{
 }
 ```
 
+```go
+// Convert a struct to a map[string]interface{}
+// => {"Name":"gopher", "ID":123456, "Enabled":true}
+m := structs.Map(s)
+
+// Convert the values of a struct to a []interface{}
+// => ["gopher", 123456, true]
+v := structs.Values(s)
+
+// Convert the values of a struct to a []*Field
+// (see "Field methods" for more info about fields)
+f := structs.Fields(s) // Get a []*Field
+
+// Return the struct name => "Server"
+n := structs.Name(s) // Get the struct name
+
+// Check if any field of a struct is initialized or not.
+h := structs.HasZero(s) // Check if any field is initialized
+
+// Check if all fields of a struct is initialized or not.
+z := structs.IsZero(s) // Check if all fields are initialized
+
+// Check if s is a struct or a pointer to struct
+i := structs.IsStruct(s)
+```
+
 ### Struct methods
 
-Let's create a new `Struct` type. 
+The structs functions can be also used as independent methods by creating a new
+`*structs.Struct`. This is handy if you want to have more control over the
+structs (such as retrieving a single Field).
 
 ```go
 // Create a new struct type:
 s := structs.New(server)
 
-// Convert a struct to a map[string]interface{}
-// => {"Name":"gopher", "ID":123456, "Enabled":true}
-m := s.Map()
-
-// Convert the values of a struct to a []interface{}
-// => ["gopher", 123456, true]
-v := s.Values()
-
-// Convert the values of a struct to a []*Field
-// (see "Field methods" for more info about fields)
-f := s.Fields()
-
-// Check if any field of a struct is initialized or not.
-if s.HasZero() {
-    fmt.Println("s has a zero value field")
-}
-
-// Check if all fields of a struct is initialized or not.
-if s.IsZero() {
-    fmt.Println("all fields of s is zero value")
-}
-
-// Return the struct name
-// => "Server"
-n := s.Name()
-```
-
-Most of the struct methods are available as global functions without the need
-for a `New()` constructor:
-
-```go
-m := structs.Map(s)      // Get a map[string]interface{}
-v := structs.Values(s)   // Get a []interface{}
-f := structs.Fields(s)   // Get a []*Field
-n := structs.Name(s)     // Get the struct name
-h := structs.HasZero(s)  // Check if any field is initialized
-z := structs.IsZero(s)   // Check if all fields are initialized
-i := structs.IsStruct(s) // Check if s is a struct or a pointer to struct
+m := s.Map()              // Get a map[string]interface{}
+v := s.Values()           // Get a []interface{}
+f := s.Fields()           // Get a []*Field
+f := s.Field(name)        // Get a *Field based on the given field name
+f, ok := s.FieldsOk(name) // Get a *Field based on the given field name
+n := s.Name()             // Get the struct name
+h := s.HasZero()          // Check if any field is initialized
+z := s.IsZero()           // Check if all fields are initialized
 ```
 
 ### Field methods
@@ -157,5 +157,3 @@ for _, f := range fields {
 ## License
 
 The MIT License (MIT) - see LICENSE.md for more details
-
-
