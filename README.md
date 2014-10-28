@@ -15,7 +15,7 @@ go get github.com/fatih/structs
 ## Usage and Examples
 
 Just like the standard lib `strings`, `bytes` and co packages, `structs` has
-many global functions to manipulate or organize your struct data Lets define
+many global functions to manipulate or organize your struct data. Lets define
 and declare a struct:
 
 ```go
@@ -37,27 +37,27 @@ server := &Server{
 ```go
 // Convert a struct to a map[string]interface{}
 // => {"Name":"gopher", "ID":123456, "Enabled":true}
-m := structs.Map(s)
+m := structs.Map(server)
 
 // Convert the values of a struct to a []interface{}
 // => ["gopher", 123456, true]
-v := structs.Values(s)
+v := structs.Values(server)
 
 // Convert the values of a struct to a []*Field
 // (see "Field methods" for more info about fields)
-f := structs.Fields(s) // Get a []*Field
+f := structs.Fields(server) // Get a []*Field
 
 // Return the struct name => "Server"
-n := structs.Name(s) // Get the struct name
+n := structs.Name(server) // Get the struct name
 
 // Check if any field of a struct is initialized or not.
-h := structs.HasZero(s) // Check if any field is initialized
+h := structs.HasZero(server) // Check if any field is initialized
 
 // Check if all fields of a struct is initialized or not.
-z := structs.IsZero(s) // Check if all fields are initialized
+z := structs.IsZero(server) // Check if all fields are initialized
 
-// Check if s is a struct or a pointer to struct
-i := structs.IsStruct(s)
+// Check if server is a struct or a pointer to struct
+i := structs.IsStruct(server)
 ```
 
 ### Struct methods
