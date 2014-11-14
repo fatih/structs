@@ -133,7 +133,7 @@ httpServer := s.Field("Server").Fields()
 ```
 
 We can also get a slice of Fields from the Struct type to iterate over all
-fields. This is handy if you whish to examine all fields:
+fields. This is handy if you wish to examine all fields:
 
 ```go
 // Convert the fields of a struct to a []*Field
