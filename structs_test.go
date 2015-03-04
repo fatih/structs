@@ -124,12 +124,10 @@ func TestMap_CustomTag(t *testing.T) {
 		C: true,
 	}
 
-	defaultName := DefaultTagName
-	DefaultTagName = "dd"
-	defer func() {
-		DefaultTagName = defaultName
-	}()
-	a := Map(T)
+	s := New(T)
+	s.TagName = "dd"
+
+	a := s.Map()
 
 	inMap := func(key interface{}) bool {
 		for k := range a {

@@ -92,7 +92,7 @@ func (f *Field) Set(val interface{}) error {
 //
 // It panics if field is not exported or if field's kind is not struct
 func (f *Field) Fields() []*Field {
-	return getFields(f.value)
+	return getFields(f.value, DefaultTagName)
 }
 
 // Field returns the field from a nested struct. It panics if the nested struct
