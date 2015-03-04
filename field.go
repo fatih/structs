@@ -14,8 +14,9 @@ var (
 // Field represents a single struct field that encapsulates high level
 // functions around the field.
 type Field struct {
-	value reflect.Value
-	field reflect.StructField
+	value      reflect.Value
+	field      reflect.StructField
+	defaultTag string
 }
 
 // Tag returns the value associated with key in the tag string. If there is no
@@ -92,7 +93,7 @@ func (f *Field) Set(val interface{}) error {
 //
 // It panics if field is not exported or if field's kind is not struct
 func (f *Field) Fields() []*Field {
-	return getFields(f.value, DefaultTagName)
+	return getFields(f.value, f.defaultTag)
 }
 
 // Field returns the field from a nested struct. It panics if the nested struct

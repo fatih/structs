@@ -222,8 +222,9 @@ func (s *Struct) FieldOk(name string) (*Field, bool) {
 	}
 
 	return &Field{
-		field: field,
-		value: s.value.FieldByName(name),
+		field:      field,
+		value:      s.value.FieldByName(name),
+		defaultTag: s.TagName,
 	}, true
 }
 
