@@ -146,6 +146,31 @@ func TestMap_CustomTag(t *testing.T) {
 
 }
 
+func TestMap_MultipleCustomTag(t *testing.T) {
+	var A = struct {
+		X string `aa:"ax"`
+	}{"a_value"}
+
+	aStruct := New(A)
+	aStruct.TagName = "aa"
+
+	var B = struct {
+		X string `bb:"bx"`
+	}{"b_value"}
+
+	bStruct := New(B)
+	bStruct.TagName = "bb"
+
+	a, b := aStruct.Map(), bStruct.Map()
+	if !reflect.DeepEqual(a, map[string]interface{}{"ax": "a_value"}) {
+		t.Error("Map should have field ax with value a_value")
+	}
+
+	if !reflect.DeepEqual(b, map[string]interface{}{"bx": "b_value"}) {
+		t.Error("Map should have field bx with value b_value")
+	}
+}
+
 func TestMap_OmitEmpty(t *testing.T) {
 	type A struct {
 		Name  string
