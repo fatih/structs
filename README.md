@@ -43,6 +43,10 @@ m := structs.Map(server)
 // => ["gopher", 123456, true]
 v := structs.Values(server)
 
+// Convert the names of a struct to a []string
+// (see "Names methods" for more info about fields)
+n := structs.Names(server)
+
 // Convert the values of a struct to a []*Field
 // (see "Field methods" for more info about fields)
 f := structs.Fields(server)
@@ -73,6 +77,7 @@ s := structs.New(server)
 m := s.Map()              // Get a map[string]interface{}
 v := s.Values()           // Get a []interface{}
 f := s.Fields()           // Get a []*Field
+n := s.Names()            // Get a []string
 f := s.Field(name)        // Get a *Field based on the given field name
 f, ok := s.FieldsOk(name) // Get a *Field based on the given field name
 n := s.Name()             // Get the struct name

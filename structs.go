@@ -171,6 +171,25 @@ func (s *Struct) Fields() []*Field {
 	return getFields(s.value, s.TagName)
 }
 
+// Names returns a slice of field names. A struct tag with the content of "-"
+// ignores the checking of that particular field. Example:
+//
+//   // Field is ignored by this package.
+//   Field bool `structs:"-"`
+//
+// It panics if s's kind is not struct.
+func (s *Struct) Names() []string {
+	fields := getFields(s.value, s.TagName)
+
+	names := make([]string, len(fields))
+
+	for i, field := range fields {
+		names[i] = field.Name()
+	}
+
+	return names
+}
+
 func getFields(v reflect.Value, tagName string) []*Field {
 	if v.Kind() == reflect.Ptr {
 		v = v.Elem()
@@ -385,6 +404,12 @@ func Values(s interface{}) []interface{} {
 // Fields() method.  It panics if s's kind is not struct.
 func Fields(s interface{}) []*Field {
 	return New(s).Fields()
+}
+
+// Names returns a slice of field names. For more info refer to Struct types
+// Names() method.  It panics if s's kind is not struct.
+func Names(s interface{}) []string {
+	return New(s).Names()
 }
 
 // IsZero returns true if all fields is equal to a zero value. For more info
