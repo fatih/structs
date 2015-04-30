@@ -268,12 +268,12 @@ func TestMap_Anonymous(t *testing.T) {
 		t.Errorf("Map should return a map type, got: %v", typ)
 	}
 
-	in, ok := m["A"].(map[string]interface{})
-	if !ok {
-		t.Error("Embedded structs is not available in the map")
+	_, ok := m["A"].(map[string]interface{})
+	if ok {
+		t.Error("Embedded structs should not be a property in the map")
 	}
 
-	if name := in["Name"].(string); name != "example" {
+	if name := m["Name"].(string); name != "example" {
 		t.Errorf("Embedded A struct's Name field should give example, got: %s", name)
 	}
 }
