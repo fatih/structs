@@ -1,7 +1,9 @@
 // Package structs contains various utilities functions to work with structs.
 package structs
 
-import "reflect"
+import (
+	"reflect"
+)
 
 var (
 	// DefaultTagName is the default tag name for struct fields which provides
@@ -92,12 +94,22 @@ func (s *Struct) Map() map[string]interface{} {
 		if IsStruct(val.Interface()) && !tagOpts.Has("omitnested") {
 			// look out for embedded structs, and convert them to a
 			// map[string]interface{} too
-			finalVal = Map(val.Interface())
+			str := New(val.Interface())
+			str.TagName = s.TagName
+			mp := str.Map()
+
+			if field.Anonymous {
+				for k, v := range mp {
+					out[k] = v
+				}
+			} else {
+				out[name] = mp
+			}
 		} else {
 			finalVal = val.Interface()
+			out[name] = finalVal
 		}
 
-		out[name] = finalVal
 	}
 
 	return out
