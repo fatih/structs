@@ -92,7 +92,9 @@ func (s *Struct) Map() map[string]interface{} {
 		if IsStruct(val.Interface()) && !tagOpts.Has("omitnested") {
 			// look out for embedded structs, and convert them to a
 			// map[string]interface{} too
-			finalVal = Map(val.Interface())
+			n := New(val.Interface())
+			n.TagName = s.TagName
+			finalVal = n.Map()
 		} else {
 			finalVal = val.Interface()
 		}
