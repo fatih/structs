@@ -115,17 +115,21 @@ func TestMap_Tag(t *testing.T) {
 
 func TestMap_CustomTag(t *testing.T) {
 	var T = struct {
-		A string `dd:"x"`
-		B int    `dd:"y"`
-		C bool   `dd:"z"`
+		A string `json:"x"`
+		B int    `json:"y"`
+		C bool   `json:"z"`
+		D struct {
+			E string `json:"jkl"`
+		} `json:"nested"`
 	}{
 		A: "a-value",
 		B: 2,
 		C: true,
 	}
+	T.D.E = "e-value"
 
 	s := New(T)
-	s.TagName = "dd"
+	s.TagName = "json"
 
 	a := s.Map()
 
@@ -142,6 +146,20 @@ func TestMap_CustomTag(t *testing.T) {
 		if !inMap(key) {
 			t.Errorf("Map should have the key %v", key)
 		}
+	}
+
+	nested, ok := a["nested"].(map[string]interface{})
+	if !ok {
+		t.Fatalf("Map should contain the D field that is tagged as 'nested'")
+	}
+
+	e, ok := nested["jkl"].(string)
+	if !ok {
+		t.Fatalf("Map should contain the D.E field that is tagged as 'jkl'")
+	}
+
+	if e != "e-value" {
+		t.Errorf("D.E field should be equal to 'e-value', got: '%v'", e)
 	}
 
 }
