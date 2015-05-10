@@ -83,6 +83,59 @@ func TestMap(t *testing.T) {
 
 }
 
+func TestLowerMap(t *testing.T) {
+	var T = struct {
+		A string
+		B int
+		C bool
+	}{
+		A: "a-value",
+		B: 2,
+		C: true,
+	}
+
+	a := LowerCaseMap(T)
+
+	if typ := reflect.TypeOf(a).Kind(); typ != reflect.Map {
+		t.Errorf("Map should return a map type, got: %v", typ)
+	}
+
+	// we have three fields
+	if len(a) != 3 {
+		t.Errorf("Map should return a map of len 3, got: %d", len(a))
+	}
+
+	inMap := func(val interface{}) bool {
+		for _, v := range a {
+			if reflect.DeepEqual(v, val) {
+				return true
+			}
+		}
+
+		return false
+	}
+
+	for _, val := range []interface{}{"a-value", 2, true} {
+		if !inMap(val) {
+			t.Errorf("Map should have the value %v", val)
+		}
+	}
+	keyInMap := func(val interface{}) bool {
+		for i, _ := range a {
+			if reflect.DeepEqual(i, val) {
+				return true
+			}
+		}
+
+		return false
+	}
+	for _, val := range []interface{}{"a", "b", "c"} {
+		if !keyInMap(val) {
+			t.Errorf("Map should have the key %v", val)
+		}
+	}
+
+}
 func TestMap_Tag(t *testing.T) {
 	var T = struct {
 		A string `structs:"x"`

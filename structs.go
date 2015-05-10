@@ -1,7 +1,10 @@
 // Package structs contains various utilities functions to work with structs.
 package structs
 
-import "reflect"
+import (
+	"reflect"
+	"strings"
+)
 
 var (
 	// DefaultTagName is the default tag name for struct fields which provides
@@ -100,6 +103,23 @@ func (s *Struct) Map() map[string]interface{} {
 		}
 
 		out[name] = finalVal
+	}
+
+	return out
+}
+
+func (s *Struct) LowerCaseMap() map[string]interface{} {
+	out := make(map[string]interface{})
+
+	fields := s.structFields()
+
+	for _, field := range fields {
+		name := field.Name
+		val := s.value.FieldByName(name)
+
+		var finalVal interface{}
+		finalVal = val.Interface()
+		out[strings.ToLower(name)] = finalVal
 	}
 
 	return out
@@ -394,6 +414,10 @@ func strctVal(s interface{}) reflect.Value {
 // refer to Struct types Map() method. It panics if s's kind is not struct.
 func Map(s interface{}) map[string]interface{} {
 	return New(s).Map()
+}
+
+func LowerCaseMap(s interface{}) map[string]interface{} {
+	return New(s).LowerCaseMap()
 }
 
 // Values converts the given struct to a []interface{}. For more info refer to
