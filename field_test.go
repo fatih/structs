@@ -81,7 +81,7 @@ func TestField_Set(t *testing.T) {
 	}
 
 	if f.Value().(bool) {
-		t.Errorf("Setted value is wrong: %s want: %s", f.Value().(bool), false)
+		t.Errorf("Setted value is wrong: %t want: %t", f.Value().(bool), false)
 	}
 
 	// let's pass a different type
