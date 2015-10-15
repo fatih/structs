@@ -99,7 +99,7 @@ func TestField_Set(t *testing.T) {
 	// let's access an unexported field, which should give an error
 	f = s.Field("d")
 	err = f.Set("large")
-	if err != errNotExported {
+	if err.Error() != "field 'd' is not exported" {
 		t.Error(err)
 	}
 

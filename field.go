@@ -1,14 +1,8 @@
 package structs
 
 import (
-	"errors"
 	"fmt"
 	"reflect"
-)
-
-var (
-	errNotExported = errors.New("field is not exported")
-	errNotSettable = errors.New("field is not settable")
 )
 
 // Field represents a single struct field that encapsulates high level
@@ -60,18 +54,22 @@ func (f *Field) Kind() reflect.Kind {
 	return f.value.Kind()
 }
 
+// Type returns the reflect.Type of field
+func (f *Field) Type() reflect.Type {
+	return f.value.Type()
+}
+
+// ReflectValue returns the reflect.Value of field
+func (f *Field) ReflectValue() reflect.Value {
+	return f.value
+}
+
 // Set sets the field to given value v. It retuns an error if the field is not
 // settable (not addresable or not exported) or if the given value's type
 // doesn't match the fields type.
 func (f *Field) Set(val interface{}) error {
-	// we can't set unexported fields, so be sure this field is exported
-	if !f.IsExported() {
-		return errNotExported
-	}
-
-	// do we get here? not sure...
-	if !f.value.CanSet() {
-		return errNotSettable
+	if err := f.Settable(); err != nil {
+		return err
 	}
 
 	given := reflect.ValueOf(val)
@@ -82,6 +80,30 @@ func (f *Field) Set(val interface{}) error {
 
 	f.value.Set(given)
 	return nil
+}
+
+// Settable checks if field is exported and settable
+func (f *Field) Settable() error {
+	// we can't set unexported fields, so be sure this field is exported
+	if !f.IsExported() {
+		return fmt.Errorf("field '%s' is not exported", f.Name())
+	}
+
+	// do we get here? not sure...
+	if !f.value.CanSet() {
+		return fmt.Errorf("field '%s' is not settable", f.Name())
+	}
+
+	return nil
+}
+
+// InitElem initializes the default value for field if it is nil and
+// selects the value that the interface field contains or that the pointer field points to
+func (f *Field) InitElem() {
+	if f.value.IsNil() {
+		f.value.Set(reflect.New(f.Type().Elem()))
+	}
+	f.value = f.value.Elem()
 }
 
 // Fields returns a slice of Fields. This is particular handy to get the fields
