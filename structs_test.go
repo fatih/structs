@@ -296,6 +296,20 @@ func TestMap_Anonymous(t *testing.T) {
 	}
 }
 
+func TestMap_TimeField(t *testing.T) {
+	type A struct {
+		CreatedAt time.Time
+	}
+
+	a := &A{CreatedAt: time.Now().UTC()}
+	m := Map(a)
+
+	_, ok := m["CreatedAt"].(time.Time)
+	if !ok {
+		t.Error("Time field must be final")
+	}
+}
+
 func TestStruct(t *testing.T) {
 	var T = struct{}{}
 
