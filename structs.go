@@ -2,7 +2,6 @@
 package structs
 
 import "reflect"
-import "time"
 
 var (
 	// DefaultTagName is the default tag name for struct fields which provides
@@ -90,12 +89,17 @@ func (s *Struct) Map() map[string]interface{} {
 			}
 		}
 
-		if IsStruct(val.Interface()) && !isTime(val.Interface()) && !tagOpts.Has("omitnested") {
+		if IsStruct(val.Interface()) && !tagOpts.Has("omitnested") {
 			// look out for embedded structs, and convert them to a
 			// map[string]interface{} too
 			n := New(val.Interface())
 			n.TagName = s.TagName
-			finalVal = n.Map()
+			m := n.Map()
+			if len(m) == 0 {
+				finalVal = val.Interface()
+			} else {
+				finalVal = m
+			}
 		} else {
 			finalVal = val.Interface()
 		}
@@ -149,7 +153,7 @@ func (s *Struct) Values() []interface{} {
 			}
 		}
 
-		if IsStruct(val.Interface()) && !isTime(val.Interface()) && !tagOpts.Has("omitnested") {
+		if IsStruct(val.Interface()) && !tagOpts.Has("omitnested") {
 			// look out for embedded structs, and convert them to a
 			// []interface{} to be added to the final values slice
 			for _, embeddedVal := range Values(val.Interface()) {
@@ -447,9 +451,4 @@ func IsStruct(s interface{}) bool {
 // empty string for unnamed types. It panics if s's kind is not struct.
 func Name(s interface{}) string {
 	return New(s).Name()
-}
-
-func isTime(v interface{}) bool {
-	_, ok := v.(time.Time)
-	return ok
 }
