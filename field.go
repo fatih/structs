@@ -118,7 +118,7 @@ func (f *Field) Field(name string) *Field {
 // the field was found. It panics if the nested struct is not exported or if
 // the field was not found.
 func (f *Field) FieldOk(name string) (*Field, bool) {
-	v := strctVal(f.value.Interface())
+	v := strctVal(f.value)
 	t := v.Type()
 
 	field, ok := t.FieldByName(name)
