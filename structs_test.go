@@ -910,3 +910,89 @@ func TestNestedNilPointer(t *testing.T) {
 	_ = Map(personWithDog)           // Panics
 	_ = Map(personWithDogWithCollar) // Doesn't panic
 }
+
+type Person struct {
+	Name string
+	Age  int
+}
+
+func (p *Person) String() string {
+	return fmt.Sprintf("%s(%d)", p.Name, p.Age)
+}
+
+func TestTagWithStringOption(t *testing.T) {
+
+	type Address struct {
+		Country string  `json:"country"`
+		Person  *Person `json:"person,string"`
+	}
+
+	person := &Person{
+		Name: "John",
+		Age:  23,
+	}
+
+	address := &Address{
+		Country: "EU",
+		Person:  person,
+	}
+
+	defer func() {
+		err := recover()
+		if err != nil {
+			fmt.Printf("err %+v\n", err)
+			t.Error("Internal nil pointer should not panic")
+		}
+	}()
+
+	s := New(address)
+
+	s.TagName = "json"
+	m := s.Map()
+
+	if m["person"] != person.String() {
+		t.Errorf("Value for field person should be %s, got: %s", person.String(), m["person"])
+	}
+
+	vs := s.Values()
+	if vs[1] != person.String() {
+		t.Errorf("Value for 2nd field (person) should be %t, got: %t", person.String(), vs[1])
+	}
+}
+
+type Animal struct {
+	Name string
+	Age  int
+}
+
+type Dog struct {
+	Animal *Animal `json:"animal,string"`
+}
+
+func TestNonStringerTagWithStringOption(t *testing.T) {
+	a := &Animal{
+		Name: "Fluff",
+		Age:  4,
+	}
+
+	d := &Dog{
+		Animal: a,
+	}
+
+	defer func() {
+		err := recover()
+		if err != nil {
+			fmt.Printf("err %+v\n", err)
+			t.Error("Internal nil pointer should not panic")
+		}
+	}()
+
+	s := New(d)
+
+	s.TagName = "json"
+	m := s.Map()
+
+	if _, exists := m["animal"]; exists {
+		t.Errorf("Value for field Animal should not exist")
+	}
+}
