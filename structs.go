@@ -78,7 +78,7 @@ func (s *Struct) Map() map[string]interface{} {
 	return out
 }
 
-// FillMap like Map, but not return map, should pass map
+// FillMap is the same as Map. Instead of returning the output, it fills the given input
 func (s *Struct) FillMap(out map[string]interface{}) {
 	if out == nil {
 		return
@@ -436,8 +436,7 @@ func Map(s interface{}) map[string]interface{} {
 	return New(s).Map()
 }
 
-// FillMap like Map, converts the given struct to a map[string]interface{}. For more info
-// refer to Struct types FillMap() method. It panics if s's kind is not struct.
+// FillMap is the same as Map. Instead of returning the output, it fills the given input
 func FillMap(s interface{}, out map[string]interface{}) {
 	New(s).FillMap(out)
 }
