@@ -78,7 +78,8 @@ func (s *Struct) Map() map[string]interface{} {
 	return out
 }
 
-// FillMap is the same as Map. Instead of returning the output, it fills the given input
+// FillMap is the same as Map. Instead of returning the output, it fills the
+// given map.
 func (s *Struct) FillMap(out map[string]interface{}) {
 	if out == nil {
 		return
@@ -434,7 +435,8 @@ func Map(s interface{}) map[string]interface{} {
 	return New(s).Map()
 }
 
-// FillMap is the same as Map. Instead of returning the output, it fills the given input
+// FillMap is the same as Map. Instead of returning the output, it fills the
+// given map.
 func FillMap(s interface{}, out map[string]interface{}) {
 	New(s).FillMap(out)
 }

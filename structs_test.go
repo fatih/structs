@@ -310,6 +310,63 @@ func TestMap_TimeField(t *testing.T) {
 	}
 }
 
+func TestFillMap(t *testing.T) {
+	var T = struct {
+		A string
+		B int
+		C bool
+	}{
+		A: "a-value",
+		B: 2,
+		C: true,
+	}
+
+	a := make(map[string]interface{}, 0)
+	FillMap(T, a)
+
+	// we have three fields
+	if len(a) != 3 {
+		t.Errorf("FillMap should fill a map of len 3, got: %d", len(a))
+	}
+
+	inMap := func(val interface{}) bool {
+		for _, v := range a {
+			if reflect.DeepEqual(v, val) {
+				return true
+			}
+		}
+
+		return false
+	}
+
+	for _, val := range []interface{}{"a-value", 2, true} {
+		if !inMap(val) {
+			t.Errorf("FillMap should have the value %v", val)
+		}
+	}
+}
+
+func TestFillMap_Nil(t *testing.T) {
+	var T = struct {
+		A string
+		B int
+		C bool
+	}{
+		A: "a-value",
+		B: 2,
+		C: true,
+	}
+
+	defer func() {
+		err := recover()
+		if err != nil {
+			t.Error("FillMap should not panic if a nil map is passed")
+		}
+	}()
+
+	// nil should no
+	FillMap(T, nil)
+}
 func TestStruct(t *testing.T) {
 	var T = struct{}{}
 
