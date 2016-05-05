@@ -25,7 +25,7 @@ func (f *Field) Tag(key string) string {
 	return f.field.Tag.Get(key)
 }
 
-// Value returns the underlying value of of the field. It panics if the field
+// Value returns the underlying value of the field. It panics if the field
 // is not exported.
 func (f *Field) Value() interface{} {
 	return f.value.Interface()
