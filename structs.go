@@ -26,8 +26,7 @@ type Struct struct {
 // not struct.
 func New(s interface{}) *Struct {
 	return &Struct{
-		raw:     s,
-		value:   strctVal(s),
+		value:   strctVal(reflect.ValueOf(s)),
 		TagName: DefaultTagName,
 	}
 }
@@ -100,16 +99,11 @@ func (s *Struct) FillMap(out map[string]interface{}) {
 
 		// if the value is a zero value and the field is marked as omitempty do
 		// not include
-		if tagOpts.Has("omitempty") {
-			zero := reflect.Zero(val.Type()).Interface()
-			current := val.Interface()
-
-			if reflect.DeepEqual(current, zero) {
+		if tagOpts.Has("omitempty") && (!val.IsValid() || isEmptyValue(val)) {
 				continue
-			}
 		}
 
-		if IsStruct(val.Interface()) && !tagOpts.Has("omitnested") {
+		if IsStruct(val) && !tagOpts.Has("omitnested") {
 			// look out for embedded structs, and convert them to a
 			// map[string]interface{} too
 			n := New(val.Interface())
@@ -135,6 +129,59 @@ func (s *Struct) FillMap(out map[string]interface{}) {
 		out[name] = finalVal
 	}
 }
+
+// mapPtr is like Map except it returns a map with
+// pointers to the struct fields(if they are addressable)
+func (s *Struct) mapPtr() map[string]interface{} {
+	out := make(map[string]interface{})
+	t := s.value.Type()
+	for i := 0; i < t.NumField(); i++ {
+		field := t.Field(i)
+		// we can't access the value of unexported fields
+		if field.PkgPath != "" {
+			continue
+		}
+		// don't check if it's omitted
+		if tag := field.Tag.Get(s.TagName); tag == "-" {
+			continue
+		}
+		name := field.Name
+		val := s.value.FieldByName(name)
+
+		tagName, tagOpts := parseTag(field.Tag.Get(s.TagName))
+		if tagName != "" {
+			name = tagName
+		}
+		// if the value is a zero value and the field is marked as omitempty do
+		// not include
+		if tagOpts.Has("omitempty") {
+			if !val.IsValid() || isEmptyValue(val) {
+				continue
+			}
+		}
+		if IsStruct(val) && !tagOpts.Has("omitnested") {
+			// look out for embedded structs, and convert them to a
+			// map[string]interface{} too
+			if val.CanAddr() && val.Type().Kind() != reflect.Ptr {
+				out[name] = val.Addr()
+			} else {
+				n := &Struct{value: strctVal(val),
+					TagName: DefaultTagName,
+				}
+				n.TagName = s.TagName
+				out[name] = n.mapPtr()
+			}
+		} else {
+			if val.CanAddr() && val.Type().Kind() != reflect.Ptr {
+				out[name] = val.Addr().Interface()
+			} else {
+				out[name] = val.Interface()
+			}
+		}
+	}
+	return out
+}
+
 
 // Values converts the given s struct's field values to a []interface{}.  A
 // struct tag with the content of "-" ignores the that particular field.
@@ -187,7 +234,7 @@ func (s *Struct) Values() []interface{} {
 			continue
 		}
 
-		if IsStruct(val.Interface()) && !tagOpts.Has("omitnested") {
+		if IsStruct(val) && !tagOpts.Has("omitnested") {
 			// look out for embedded structs, and convert them to a
 			// []interface{} to be added to the final values slice
 			for _, embeddedVal := range Values(val.Interface()) {
@@ -312,7 +359,7 @@ func (s *Struct) IsZero() bool {
 
 		_, tagOpts := parseTag(field.Tag.Get(s.TagName))
 
-		if IsStruct(val.Interface()) && !tagOpts.Has("omitnested") {
+		if IsStruct(val) && !tagOpts.Has("omitnested") {
 			ok := IsZero(val.Interface())
 			if !ok {
 				return false
@@ -359,7 +406,7 @@ func (s *Struct) HasZero() bool {
 
 		_, tagOpts := parseTag(field.Tag.Get(s.TagName))
 
-		if IsStruct(val.Interface()) && !tagOpts.Has("omitnested") {
+		if IsStruct(val) && !tagOpts.Has("omitnested") {
 			ok := HasZero(val.Interface())
 			if ok {
 				return true
@@ -393,8 +440,7 @@ func (s *Struct) Name() string {
 // functions.
 func (s *Struct) structFields() []reflect.StructField {
 	t := s.value.Type()
-
-	var f []reflect.StructField
+	f := []reflect.StructField{}
 
 	for i := 0; i < t.NumField(); i++ {
 		field := t.Field(i)
@@ -414,8 +460,7 @@ func (s *Struct) structFields() []reflect.StructField {
 	return f
 }
 
-func strctVal(s interface{}) reflect.Value {
-	v := reflect.ValueOf(s)
+func strctVal(v reflect.Value) reflect.Value {
 
 	// if pointer get the underlying element≤
 	if v.Kind() == reflect.Ptr {
@@ -433,6 +478,12 @@ func strctVal(s interface{}) reflect.Value {
 // refer to Struct types Map() method. It panics if s's kind is not struct.
 func Map(s interface{}) map[string]interface{} {
 	return New(s).Map()
+}
+
+// MapPtr is like Map except it returns a map with
+// pointers to the struct fields. s must be a pointer.
+func MapPtr(s interface{}) map[string]interface{} {
+	return New(s).mapPtr()
 }
 
 // FillMap is the same as Map. Instead of returning the output, it fills the
@@ -473,8 +524,7 @@ func HasZero(s interface{}) bool {
 
 // IsStruct returns true if the given variable is a struct or a pointer to
 // struct.
-func IsStruct(s interface{}) bool {
-	v := reflect.ValueOf(s)
+func IsStruct(v reflect.Value) bool {
 	if v.Kind() == reflect.Ptr {
 		v = v.Elem()
 	}
@@ -491,4 +541,34 @@ func IsStruct(s interface{}) bool {
 // empty string for unnamed types. It panics if s's kind is not struct.
 func Name(s interface{}) string {
 	return New(s).Name()
+}
+
+type isZero interface {
+	IsZero() bool
+}
+
+// from encoding/json
+func isEmptyValue(v reflect.Value) bool {
+	switch v.Kind() {
+	case reflect.Array, reflect.Map, reflect.Slice, reflect.String:
+		return v.Len() == 0
+	case reflect.Bool:
+		return !v.Bool()
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		return v.Int() == 0
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr:
+		return v.Uint() == 0
+	case reflect.Float32, reflect.Float64:
+		return v.Float() == 0
+	case reflect.Interface, reflect.Ptr:
+		return v.IsNil()
+	}
+	z := v.MethodByName("IsZero")
+	if z.IsValid() {
+		return z.Call(nil)[0].Interface().(bool)
+	}
+	// This shouldn't really happen...
+	zero := reflect.Zero(v.Type()).Interface()
+	current := v.Interface()
+	return reflect.DeepEqual(current, zero)
 }

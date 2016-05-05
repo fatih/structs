@@ -83,6 +83,35 @@ func TestMap(t *testing.T) {
 
 }
 
+func TestMapPtr(t *testing.T) {
+	var d int = 3
+	var cases = []struct {
+		A string
+		D *int
+	}{
+		{
+			A: "a-value",
+			D: &d,
+		},
+	}
+
+	for k, v := range cases {
+		r := MapPtr(&v)
+		if *r["A"].(*string) != "a-value" {
+			t.Errorf("a %v", r["A"])
+		}
+		*r["A"].(*string) = "new value"
+		if v.A != "new value" {
+			t.Errorf("Case #%v: e %v, r %v", k, v.A, r["A"])
+		}
+		*r["D"].(*int) = 10
+		if *v.D != 10 {
+			t.Errorf("Case #%v: e %v, r %v", k, v.D, r["D"])
+		}
+	}
+
+}
+
 func TestMap_Tag(t *testing.T) {
 	var T = struct {
 		A string `structs:"x"`
@@ -370,11 +399,11 @@ func TestFillMap_Nil(t *testing.T) {
 func TestStruct(t *testing.T) {
 	var T = struct{}{}
 
-	if !IsStruct(T) {
+	if !IsStruct(reflect.ValueOf(T)) {
 		t.Errorf("T should be a struct, got: %T", T)
 	}
 
-	if !IsStruct(&T) {
+	if !IsStruct(reflect.ValueOf(&T)) {
 		t.Errorf("T should be a struct, got: %T", T)
 	}
 
