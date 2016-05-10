@@ -296,6 +296,60 @@ func TestMap_Anonymous(t *testing.T) {
 	}
 }
 
+func TestMap_Flatnested(t *testing.T) {
+	type A struct {
+		Name string
+	}
+	a := A{Name: "example"}
+
+	type B struct {
+		A `structs:",flatten"`
+		C int
+	}
+	b := &B{C: 123}
+	b.A = a
+
+	m := Map(b)
+
+	_, ok := m["A"].(map[string]interface{})
+	if ok {
+		t.Error("Embedded A struct with tag flatten has to be flat in the map")
+	}
+
+	expectedMap := map[string]interface{}{"Name": "example", "C": 123}
+	if !reflect.DeepEqual(m, expectedMap) {
+		t.Errorf("The exprected map %+v does't correspond to %+v", expectedMap, m)
+	}
+
+}
+
+func TestMap_FlatnestedOverwrite(t *testing.T) {
+	type A struct {
+		Name string
+	}
+	a := A{Name: "example"}
+
+	type B struct {
+		A    `structs:",flatten"`
+		Name string
+		C    int
+	}
+	b := &B{C: 123, Name: "bName"}
+	b.A = a
+
+	m := Map(b)
+
+	_, ok := m["A"].(map[string]interface{})
+	if ok {
+		t.Error("Embedded A struct with tag flatten has to be flat in the map")
+	}
+
+	expectedMap := map[string]interface{}{"Name": "bName", "C": 123}
+	if !reflect.DeepEqual(m, expectedMap) {
+		t.Errorf("The exprected map %+v does't correspond to %+v", expectedMap, m)
+	}
+}
+
 func TestMap_TimeField(t *testing.T) {
 	type A struct {
 		CreatedAt time.Time
