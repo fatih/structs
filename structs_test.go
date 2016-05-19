@@ -1067,7 +1067,7 @@ func TestTagWithStringOption(t *testing.T) {
 
 	vs := s.Values()
 	if vs[1] != person.String() {
-		t.Errorf("Value for 2nd field (person) should be %t, got: %t", person.String(), vs[1])
+		t.Errorf("Value for 2nd field (person) should be %T, got: %T", person.String(), vs[1])
 	}
 }
 
