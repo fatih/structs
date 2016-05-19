@@ -283,7 +283,7 @@ func (s *Struct) Field(name string) *Field {
 	return f
 }
 
-// Field returns a new Field struct that provides several high level functions
+// FieldOk returns a new Field struct that provides several high level functions
 // around a single struct field entity. The boolean returns true if the field
 // was found.
 func (s *Struct) FieldOk(name string) (*Field, bool) {
