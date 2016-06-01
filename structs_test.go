@@ -1022,6 +1022,28 @@ func TestNestedNilPointer(t *testing.T) {
 	_ = Map(personWithDogWithCollar) // Doesn't panic
 }
 
+func TestSetValueOnNestedField(t *testing.T) {
+	type Base struct {
+		ID int
+	}
+
+	type User struct {
+		Base
+		Name string
+	}
+
+	u := User{}
+	s := New(&u)
+	f := s.Field("Base").Field("ID")
+	err := f.Set(10)
+	if err != nil {
+		t.Errorf("Error %v", err)
+	}
+	if f.Value().(int) != 10 {
+		t.Errorf("Value should be equal to 10, got %v", f.Value())
+	}
+}
+
 type Person struct {
 	Name string
 	Age  int
