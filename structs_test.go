@@ -1129,3 +1129,24 @@ func TestNonStringerTagWithStringOption(t *testing.T) {
 		t.Errorf("Value for field Animal should not exist")
 	}
 }
+
+func TestNestedArrayStruct(t *testing.T) {
+	type address struct {
+		Country string `structs:"customCountryName"`
+	}
+
+	type person struct {
+		Name      string    `structs:"name"`
+		Addresses []address `structs:"addresses"`
+	}
+
+	p := person{Name: "test", Addresses: []address{address{Country: "England"}, address{Country: "Italy"}}}
+	mp := Map(p)
+	mpAddresses := mp["addresses"].([]map[string]interface{})
+	if _, exists := mpAddresses[0]["Country"]; exists {
+		t.Errorf("Expecting customCountryName, but found Country")
+	}
+	if _, exists := mpAddresses[0]["customCountryName"]; !exists {
+		t.Errorf("customCountryName key not found")
+	}
+}

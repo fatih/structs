@@ -115,7 +115,8 @@ func (s *Struct) FillMap(out map[string]interface{}) {
 			}
 		}
 
-		if IsStruct(val.Interface()) && !tagOpts.Has("omitnested") {
+		switch {
+		case IsStruct(val.Interface()) && !tagOpts.Has("omitnested"):
 			// look out for embedded structs, and convert them to a
 			// map[string]interface{} too
 			n := New(val.Interface())
@@ -127,7 +128,15 @@ func (s *Struct) FillMap(out map[string]interface{}) {
 			} else {
 				finalVal = m
 			}
-		} else {
+		case IsSlice(val.Interface()):
+			sliceLen := val.Len()
+			finalValSlice := make([]map[string]interface{}, sliceLen, sliceLen)
+			for x := 0; x < sliceLen; x++ {
+				n := New(val.Index(x).Interface())
+				finalValSlice[x] = n.Map()
+			}
+			finalVal = finalValSlice
+		default:
 			finalVal = val.Interface()
 		}
 
@@ -498,6 +507,22 @@ func IsStruct(s interface{}) bool {
 	}
 
 	return v.Kind() == reflect.Struct
+}
+
+// IsArray returns true if the given variable is a slice or a pointer to
+// slide.
+func IsSlice(s interface{}) bool {
+	v := reflect.ValueOf(s)
+	if v.Kind() == reflect.Ptr {
+		v = v.Elem()
+	}
+
+	// uninitialized zero value of a struct
+	if v.Kind() == reflect.Invalid {
+		return false
+	}
+
+	return v.Kind() == reflect.Slice
 }
 
 // Name returns the structs's type name within its package. It returns an
