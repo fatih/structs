@@ -268,6 +268,239 @@ func TestMap_Nested(t *testing.T) {
 	}
 }
 
+func TestMap_NestedMapWithStructValues(t *testing.T) {
+	type A struct {
+		Name string
+	}
+
+	type B struct {
+		A map[string]*A
+	}
+
+	a := &A{Name: "example"}
+
+	b := &B{
+		A: map[string]*A{
+			"example_key": a,
+		},
+	}
+
+	m := Map(b)
+
+	if typ := reflect.TypeOf(m).Kind(); typ != reflect.Map {
+		t.Errorf("Map should return a map type, got: %v", typ)
+	}
+
+	in, ok := m["A"].(map[string]interface{})
+	if !ok {
+		t.Errorf("Nested type of map should be of type map[string]interface{}, have %T", m["A"])
+	}
+
+	example := in["example_key"].(map[string]interface{})
+	if name := example["Name"].(string); name != "example" {
+		t.Errorf("Map nested struct's name field should give example, got: %s", name)
+	}
+}
+
+func TestMap_NestedMapWithStringValues(t *testing.T) {
+	type B struct {
+		Foo map[string]string
+	}
+
+	type A struct {
+		B *B
+	}
+
+	b := &B{
+		Foo: map[string]string{
+			"example_key": "example",
+		},
+	}
+
+	a := &A{B: b}
+
+	m := Map(a)
+
+	if typ := reflect.TypeOf(m).Kind(); typ != reflect.Map {
+		t.Errorf("Map should return a map type, got: %v", typ)
+	}
+
+	in, ok := m["B"].(map[string]interface{})
+	if !ok {
+		t.Errorf("Nested type of map should be of type map[string]interface{}, have %T", m["B"])
+	}
+
+	foo := in["Foo"].(map[string]string)
+	if name := foo["example_key"]; name != "example" {
+		t.Errorf("Map nested struct's name field should give example, got: %s", name)
+	}
+}
+func TestMap_NestedMapWithInterfaceValues(t *testing.T) {
+	type B struct {
+		Foo map[string]interface{}
+	}
+
+	type A struct {
+		B *B
+	}
+
+	b := &B{
+		Foo: map[string]interface{}{
+			"example_key": "example",
+		},
+	}
+
+	a := &A{B: b}
+
+	m := Map(a)
+
+	if typ := reflect.TypeOf(m).Kind(); typ != reflect.Map {
+		t.Errorf("Map should return a map type, got: %v", typ)
+	}
+
+	in, ok := m["B"].(map[string]interface{})
+	if !ok {
+		t.Errorf("Nested type of map should be of type map[string]interface{}, have %T", m["B"])
+	}
+
+	foo := in["Foo"].(map[string]interface{})
+	if name := foo["example_key"]; name != "example" {
+		t.Errorf("Map nested struct's name field should give example, got: %s", name)
+	}
+}
+
+func TestMap_NestedMapWithSliceIntValues(t *testing.T) {
+	type B struct {
+		Foo map[string][]int
+	}
+
+	type A struct {
+		B *B
+	}
+
+	b := &B{
+		Foo: map[string][]int{
+			"example_key": []int{80},
+		},
+	}
+
+	a := &A{B: b}
+
+	m := Map(a)
+
+	if typ := reflect.TypeOf(m).Kind(); typ != reflect.Map {
+		t.Errorf("Map should return a map type, got: %v", typ)
+	}
+
+	in, ok := m["B"].(map[string]interface{})
+	if !ok {
+		t.Errorf("Nested type of map should be of type map[string]interface{}, have %T", m["B"])
+	}
+
+	foo := in["Foo"].(map[string][]int)
+	if name := foo["example_key"]; name[0] != 80 {
+		t.Errorf("Map nested struct's name field should give example, got: %s", name)
+	}
+}
+
+func TestMap_NestedMapWithSliceStructValues(t *testing.T) {
+	type address struct {
+		Country string `structs:"country"`
+	}
+
+	type B struct {
+		Foo map[string][]address
+	}
+
+	type A struct {
+		B *B
+	}
+
+	b := &B{
+		Foo: map[string][]address{
+			"example_key": []address{
+				{Country: "Turkey"},
+			},
+		},
+	}
+
+	a := &A{B: b}
+	m := Map(a)
+
+	if typ := reflect.TypeOf(m).Kind(); typ != reflect.Map {
+		t.Errorf("Map should return a map type, got: %v", typ)
+	}
+
+	in, ok := m["B"].(map[string]interface{})
+	if !ok {
+		t.Errorf("Nested type of map should be of type map[string]interface{}, have %T", m["B"])
+	}
+
+	foo := in["Foo"].(map[string]interface{})
+
+	addresses := foo["example_key"].([]interface{})
+
+	addr, ok := addresses[0].(map[string]interface{})
+	if !ok {
+		t.Errorf("Nested type of map should be of type map[string]interface{}, have %T", m["B"])
+	}
+
+	if _, exists := addr["country"]; !exists {
+		t.Errorf("Expecting country, but found Country")
+	}
+}
+
+func TestMap_NestedSliceWithStructValues(t *testing.T) {
+	type address struct {
+		Country string `structs:"customCountryName"`
+	}
+
+	type person struct {
+		Name      string    `structs:"name"`
+		Addresses []address `structs:"addresses"`
+	}
+
+	p := person{
+		Name: "test",
+		Addresses: []address{
+			address{Country: "England"},
+			address{Country: "Italy"},
+		},
+	}
+	mp := Map(p)
+
+	mpAddresses := mp["addresses"].([]interface{})
+	if _, exists := mpAddresses[0].(map[string]interface{})["Country"]; exists {
+		t.Errorf("Expecting customCountryName, but found Country")
+	}
+
+	if _, exists := mpAddresses[0].(map[string]interface{})["customCountryName"]; !exists {
+		t.Errorf("customCountryName key not found")
+	}
+}
+
+func TestMap_NestedSliceWithIntValues(t *testing.T) {
+	type person struct {
+		Name  string `structs:"name"`
+		Ports []int  `structs:"ports"`
+	}
+
+	p := person{
+		Name:  "test",
+		Ports: []int{80},
+	}
+	m := Map(p)
+
+	ports, ok := m["ports"].([]int)
+	if !ok {
+		t.Errorf("Nested type of map should be of type []int, have %T", m["ports"])
+	}
+
+	if ports[0] != 80 {
+		t.Errorf("Map nested struct's ports field should give 80, got: %v", ports)
+	}
+}
+
 func TestMap_Anonymous(t *testing.T) {
 	type A struct {
 		Name string
