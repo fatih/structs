@@ -1363,8 +1363,7 @@ func TestNonStringerTagWithStringOption(t *testing.T) {
 	}
 }
 
-func TestInterfaceInStruct(t *testing.T) {
-
+func TestMap_InterfaceValue(t *testing.T) {
 	type TestStruct struct {
 		A interface{}
 	}
