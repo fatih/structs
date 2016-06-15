@@ -1362,3 +1362,17 @@ func TestNonStringerTagWithStringOption(t *testing.T) {
 		t.Errorf("Value for field Animal should not exist")
 	}
 }
+
+func TestMap_InterfaceValue(t *testing.T) {
+	type TestStruct struct {
+		A interface{}
+	}
+
+	expected := []byte("test value")
+
+	a := TestStruct{A: expected}
+	s := Map(a)
+	if !reflect.DeepEqual(s["A"], expected) {
+		t.Errorf("Value does not match expected: %q != %q", s["A"], expected)
+	}
+}

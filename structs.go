@@ -550,6 +550,11 @@ func (s *Struct) nested(val reflect.Value) interface{} {
 		// TODO(arslan): should this be optional?
 		finalVal = val.Interface()
 	case reflect.Slice, reflect.Array:
+		if val.Type().Kind() == reflect.Interface {
+			finalVal = val.Interface()
+			break
+		}
+
 		// TODO(arslan): should this be optional?
 		// do not iterate of non struct types, just pass the value. Ie: []int,
 		// []string, co... We only iterate further if it's a struct.
