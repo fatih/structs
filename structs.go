@@ -56,7 +56,7 @@ func New(s interface{}) *Struct {
 // in the output map. Example:
 //
 //   // The FieldStruct's fields will be flattened into the output map.
-//   FieldStruct time.Time `structs:"flatten"`
+//   FieldStruct time.Time `structs:",flatten"`
 //
 // A tag value with the option of "omitnested" stops iterating further if the type
 // is a struct. Example:
