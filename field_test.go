@@ -133,6 +133,20 @@ func TestField_Set(t *testing.T) {
 	}
 }
 
+func TestField_NotSettable(t *testing.T) {
+	a := map[int]Baz{
+		4: Baz{
+			A: "value",
+		},
+	}
+
+	s := New(a[4])
+
+	if err := s.Field("A").Set("newValue"); err != errNotSettable {
+		t.Errorf("Trying to set non-settable field should error with %q. Got %q instead.", errNotSettable, err)
+	}
+}
+
 func TestField_Zero(t *testing.T) {
 	s := newStruct()
 
