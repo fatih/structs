@@ -1376,3 +1376,49 @@ func TestMap_InterfaceValue(t *testing.T) {
 		t.Errorf("Value does not match expected: %q != %q", s["A"], expected)
 	}
 }
+
+type Cat struct {
+	Animal *Animal `structs:"animal,value"`
+}
+
+func (a *Animal) StructValue() interface{} {
+	return fmt.Sprintf("%s is %d years old", a.Name, a.Age)
+}
+
+func TestMap_Valuer(t *testing.T) {
+	cat := &Cat{
+		Animal: &Animal{
+			Name: "Mimi",
+			Age:  5,
+		},
+	}
+
+	m := Map(cat)
+
+	expected := "Mimi is 5 years old"
+	value := m["animal"]
+
+	if value != expected {
+		t.Errorf("Expected value: %s, got: %s", expected, value)
+	}
+}
+
+func TestMap_ValuerNotImplemented(t *testing.T) {
+	var a = struct {
+		Person *Person `structs:"person,value"`
+	}{
+		Person: &Person{
+			Name: "John",
+			Age:  23,
+		},
+	}
+
+	m := Map(a)
+
+	mapLen := len(m)
+	exptectedLen := 0
+
+	if mapLen != exptectedLen {
+		t.Errorf("Expected length: %d, got: %d", exptectedLen, mapLen)
+	}
+}
