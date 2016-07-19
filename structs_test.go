@@ -1376,3 +1376,24 @@ func TestMap_InterfaceValue(t *testing.T) {
 		t.Errorf("Value does not match expected: %q != %q", s["A"], expected)
 	}
 }
+
+func TestPointer2Pointer(t *testing.T) {
+	defer func() {
+		err := recover()
+		if err != nil {
+			fmt.Printf("err %+v\n", err)
+			t.Error("Internal nil pointer should not panic")
+		}
+	}()
+	a := &Animal{
+		Name: "Fluff",
+		Age:  4,
+	}
+	_ = Map(&a)
+
+	b := &a
+	_ = Map(&b)
+
+	c := &b
+	_ = Map(&c)
+}
