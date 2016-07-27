@@ -479,6 +479,35 @@ func TestMap_NestedSliceWithStructValues(t *testing.T) {
 	}
 }
 
+func TestMap_NestedSliceWithPointerOfStructValues(t *testing.T) {
+	type address struct {
+		Country string `structs:"customCountryName"`
+	}
+
+	type person struct {
+		Name      string     `structs:"name"`
+		Addresses []*address `structs:"addresses"`
+	}
+
+	p := person{
+		Name: "test",
+		Addresses: []*address{
+			&address{Country: "England"},
+			&address{Country: "Italy"},
+		},
+	}
+	mp := Map(p)
+
+	mpAddresses := mp["addresses"].([]interface{})
+	if _, exists := mpAddresses[0].(map[string]interface{})["Country"]; exists {
+		t.Errorf("Expecting customCountryName, but found Country")
+	}
+
+	if _, exists := mpAddresses[0].(map[string]interface{})["customCountryName"]; !exists {
+		t.Errorf("customCountryName key not found")
+	}
+}
+
 func TestMap_NestedSliceWithIntValues(t *testing.T) {
 	type person struct {
 		Name  string `structs:"name"`
