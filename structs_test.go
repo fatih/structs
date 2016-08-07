@@ -1426,3 +1426,28 @@ func TestPointer2Pointer(t *testing.T) {
 	c := &b
 	_ = Map(&c)
 }
+
+func TestMap_InterfaceTypeWithMapValue(t *testing.T) {
+	type A struct {
+		Name    string      `structs:"name"`
+		Ip      string      `structs:"ip"`
+		Query   string      `structs:"query"`
+		Payload interface{} `structs:"payload"`
+	}
+
+	a := A{
+		Name:    "test",
+		Ip:      "127.0.0.1",
+		Query:   "",
+		Payload: map[string]string{"test_param": "test_param"},
+	}
+
+	defer func() {
+		err := recover()
+		if err != nil {
+			t.Error("Converting Map with an interface{} type with map value should not panic")
+		}
+	}()
+
+	_ = Map(a)
+}
