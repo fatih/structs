@@ -1,6 +1,6 @@
 language: go
 go: 
- - 1.7
+ - 1.7.x
  - tip
 sudo: false
 before_install:
