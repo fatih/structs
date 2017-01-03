@@ -81,7 +81,7 @@ func ExampleMap_tags() {
 
 }
 
-func ExampleMap_nested() {
+func ExampleMap_omitNested() {
 	// By default field with struct types are processed too. We can stop
 	// processing them via "omitnested" tag option.
 	type Server struct {
