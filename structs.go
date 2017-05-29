@@ -58,6 +58,12 @@ func New(s interface{}) *Struct {
 //   // The FieldStruct's fields will be flattened into the output map.
 //   FieldStruct time.Time `structs:",flatten"`
 //
+// A tag value with the option of "dotflatten" used in a struct field is to flatten its fields separated with dots
+// in the output map in the next format "Structure.Field". Example:
+//
+//   // The FieldStruct's fields will be flattened into the output map.
+//   FieldStruct time.Time `structs:",flatten"`
+//
 // A tag value with the option of "omitnested" stops iterating further if the type
 // is a struct. Example:
 //
@@ -131,21 +137,24 @@ func (s *Struct) FillMap(out map[string]interface{}) {
 			finalVal = val.Interface()
 		}
 
-		if tagOpts.Has("string") {
+		switch {
+		case tagOpts.Has("string"):
 			s, ok := val.Interface().(fmt.Stringer)
 			if ok {
 				out[name] = s.String()
 			}
-			continue
-		}
-
-		if isSubStruct && (tagOpts.Has("flatten")) {
+		case isSubStruct && (tagOpts.Has("flatten")):
 			for k := range finalVal.(map[string]interface{}) {
 				out[k] = finalVal.(map[string]interface{})[k]
 			}
-		} else {
+		case isSubStruct && (tagOpts.Has("dotflatten")):
+			for k := range finalVal.(map[string]interface{}) {
+				out[fmt.Sprintf("%s.%s", field.Name, k)] = finalVal.(map[string]interface{})[k]
+			}
+		default:
 			out[name] = finalVal
 		}
+
 	}
 }
 
