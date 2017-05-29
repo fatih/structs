@@ -38,7 +38,7 @@ func (f *Field) IsEmbedded() bool {
 
 // IsExported returns true if the given field is exported.
 func (f *Field) IsExported() bool {
-	return f.field.PkgPath == ""
+	return f.field.PkgPath == "" && !f.field.Anonymous
 }
 
 // IsZero returns true if the given field is not initialized (has a zero value).
