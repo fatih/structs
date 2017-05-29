@@ -214,6 +214,67 @@ func (s *Struct) Values() []interface{} {
 	return t
 }
 
+// StringValues converts the given s struct's field values to a []string{}.  A
+// struct tag with the content of "-" ignores the that particular field.
+// Example:
+//
+//   // Field is ignored by this package.
+//   Field int `structs:"-"`
+//
+// A value with the option of "omitnested" stops iterating further if the type
+// is a struct. Example:
+//
+//   // Fields is not processed further by this package.
+//   Field time.Time     `structs:",omitnested"`
+//   Field *http.Request `structs:",omitnested"`
+//
+// A tag value with the option of "omitempty" ignores that particular field and
+// is not added to the values if the field value is empty. Example:
+//
+//   // Field is skipped if empty
+//   Field string `structs:",omitempty"`
+//
+// Note that only exported fields of a struct can be accessed, non exported
+// fields  will be neglected.
+func (s *Struct) StringValues() []string {
+	fields := s.structFields()
+
+	var t []string
+
+	for _, field := range fields {
+		val := s.value.FieldByName(field.Name)
+
+		_, tagOpts := parseTag(field.Tag.Get(s.TagName))
+
+		// if the value is a zero value and the field is marked as omitempty do
+		// not include
+		if tagOpts.Has("omitempty") {
+			zero := reflect.Zero(val.Type()).Interface()
+			current := val.Interface()
+
+			if reflect.DeepEqual(current, zero) {
+				continue
+			}
+		}
+
+		if tagOpts.Has("string") {
+			s, ok := val.Interface().(fmt.Stringer)
+			if ok {
+				t = append(t, s.String())
+			}
+			continue
+		}
+
+		if IsStruct(val.Interface()) && !tagOpts.Has("omitnested") {
+			// Embedded structs don't really make sense with []string
+		} else {
+			t = append(t, fmt.Sprintf("%v", val.Interface()))
+		}
+	}
+
+	return t
+}
+
 // Fields returns a slice of Fields. A struct tag with the content of "-"
 // ignores the checking of that particular field. Example:
 //
@@ -458,6 +519,12 @@ func FillMap(s interface{}, out map[string]interface{}) {
 // Struct types Values() method.  It panics if s's kind is not struct.
 func Values(s interface{}) []interface{} {
 	return New(s).Values()
+}
+
+// StringValues converts the given struct to a []string{}. For more info refer
+// to Struct types StringValues() method.  It panics if s's kind is not struct.
+func StringValues(s interface{}) []string {
+	return New(s).StringValues()
 }
 
 // Fields returns a slice of *Field. For more info refer to Struct types
