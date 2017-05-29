@@ -63,7 +63,9 @@ func (f *Field) Kind() reflect.Kind {
 // Set sets the field to given value v. It returns an error if the field is not
 // settable (not addressable or not exported) or if the given value's type
 // doesn't match the fields type.
-func (f *Field) Set(val interface{}) error {
+// If checkKind is false, an error will not be thrown if the input kind does not match the field kind.
+// This is useful for when your field is an interface{}.
+func (f *Field) Set(val interface{}, checkKind bool) error {
 	// we can't set unexported fields, so be sure this field is exported
 	if !f.IsExported() {
 		return errNotExported
@@ -76,8 +78,10 @@ func (f *Field) Set(val interface{}) error {
 
 	given := reflect.ValueOf(val)
 
-	if f.value.Kind() != given.Kind() {
-		return fmt.Errorf("wrong kind. got: %s want: %s", given.Kind(), f.value.Kind())
+	if checkKind == true {
+		if f.value.Kind() != given.Kind() {
+			return fmt.Errorf("wrong kind. got: %s want: %s", given.Kind(), f.value.Kind())
+		}
 	}
 
 	f.value.Set(given)
@@ -88,7 +92,7 @@ func (f *Field) Set(val interface{}) error {
 // settable (not addressable or not exported).
 func (f *Field) Zero() error {
 	zero := reflect.Zero(f.value.Type()).Interface()
-	return f.Set(zero)
+	return f.Set(zero, true)
 }
 
 // Fields returns a slice of Fields. This is particular handy to get the fields
