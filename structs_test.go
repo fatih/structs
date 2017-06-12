@@ -399,7 +399,7 @@ func TestMap_NestedMapWithSliceIntValues(t *testing.T) {
 
 	foo := in["Foo"].(map[string][]int)
 	if name := foo["example_key"]; name[0] != 80 {
-		t.Errorf("Map nested struct's name field should give example, got: %s", name)
+		t.Errorf("Map nested struct's name field should give example, got: %v", name)
 	}
 }
 
