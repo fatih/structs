@@ -113,6 +113,41 @@ func TestMap_Tag(t *testing.T) {
 
 }
 
+func TestMap_TagFunc(t *testing.T) {
+	var T = struct {
+		A string `json:"x"`
+		B int    `json:"y"`
+		C bool   `json:"z"`
+	}{
+		A: "a-value",
+		B: 2,
+		C: true,
+	}
+
+	s := New(T)
+	s.TagName = "json"
+	s.TagFunc = func(field reflect.StructField) string {
+		return fmt.Sprintf("%s-by-func", field.Tag.Get("json"))
+	}
+
+	a := s.Map()
+
+	inMap := func(key interface{}) bool {
+		for k := range a {
+			if reflect.DeepEqual(k, key) {
+				return true
+			}
+		}
+		return false
+	}
+
+	for _, key := range []string{"x-by-func", "y-by-func", "z-by-func"} {
+		if !inMap(key) {
+			t.Errorf("Map should have the key %v", key)
+		}
+	}
+}
+
 func TestMap_CustomTag(t *testing.T) {
 	var T = struct {
 		A string `json:"x"`
