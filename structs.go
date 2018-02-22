@@ -171,7 +171,7 @@ func (s *Struct) FillMap(out map[string]interface{}) {
 //
 // Note that only exported fields of a struct can be accessed, non exported
 // fields  will be neglected.
-func (s *Struct) Values() []interface{} {
+func (s *Struct) Values(filterTag string, exclude bool) []interface{} {
 	fields := s.structFields()
 
 	var t []interface{}
@@ -180,6 +180,10 @@ func (s *Struct) Values() []interface{} {
 		val := s.value.FieldByName(field.Name)
 
 		_, tagOpts := parseTag(field.Tag.Get(s.TagName))
+
+		if tagOpts.Has(filterTag) == exclude {
+			continue
+		}
 
 		// if the value is a zero value and the field is marked as omitempty do
 		// not include
@@ -230,13 +234,22 @@ func (s *Struct) Fields() []*Field {
 //   Field bool `structs:"-"`
 //
 // It panics if s's kind is not struct.
-func (s *Struct) Names() []string {
-	fields := getFields(s.value, s.TagName)
+func (s *Struct) Names(filterTag string, exclude bool ) []string {
+	fields := s.structFields()
 
-	names := make([]string, len(fields))
+	var names []string
 
-	for i, field := range fields {
-		names[i] = field.Name()
+	for _, field := range fields {
+		tagName, tagOptions := parseTag(field.Tag.Get(s.TagName))
+		if tagName == "-" || tagOptions.Has(filterTag) == exclude {
+			continue
+		}
+
+		if tagName != "" {
+			field.Name = tagName
+		}
+
+		names = append(names, field.Name)
 	}
 
 	return names
@@ -455,9 +468,12 @@ func FillMap(s interface{}, out map[string]interface{}) {
 // Values converts the given struct to a []interface{}. For more info refer to
 // Struct types Values() method.  It panics if s's kind is not struct.
 func Values(s interface{}) []interface{} {
-	return New(s).Values()
+	return New(s).Values("-", true)
 }
 
+func FilterValues(s interface{}, filterTag string, exclude bool) []interface{} {
+	return New(s).Values(filterTag, exclude)
+}
 // Fields returns a slice of *Field. For more info refer to Struct types
 // Fields() method.  It panics if s's kind is not struct.
 func Fields(s interface{}) []*Field {
@@ -467,9 +483,12 @@ func Fields(s interface{}) []*Field {
 // Names returns a slice of field names. For more info refer to Struct types
 // Names() method.  It panics if s's kind is not struct.
 func Names(s interface{}) []string {
-	return New(s).Names()
+	return New(s).Names("-", true)
 }
 
+func FilterNames(s interface{}, filterTag string, exclude bool) []string {
+	return New(s).Names(filterTag, exclude)
+}
 // IsZero returns true if all fields is equal to a zero value. For more info
 // refer to Struct types IsZero() method.  It panics if s's kind is not struct.
 func IsZero(s interface{}) bool {

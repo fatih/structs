@@ -852,15 +852,17 @@ func TestNames(t *testing.T) {
 		A string
 		B int
 		C bool
+		D string `structs:"OVERRIDE"`
 	}{
 		A: "a-value",
 		B: 2,
 		C: true,
+		D: "b-value",
 	}
 
 	s := Names(T)
 
-	if len(s) != 3 {
+	if len(s) != 4 {
 		t.Errorf("Names should return a slice of len 3, got: %d", len(s))
 	}
 
@@ -873,7 +875,7 @@ func TestNames(t *testing.T) {
 		return false
 	}
 
-	for _, val := range []string{"A", "B", "C"} {
+	for _, val := range []string{"A", "B", "C", "OVERRIDE"} {
 		if !inSlice(val) {
 			t.Errorf("Names should have the value %v", val)
 		}
