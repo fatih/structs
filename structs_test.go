@@ -3,6 +3,7 @@ package structs
 import (
 	"fmt"
 	"reflect"
+	"strings"
 	"testing"
 	"time"
 )
@@ -299,6 +300,68 @@ func TestMap_NestedMapWithStructValues(t *testing.T) {
 	example := in["example_key"].(map[string]interface{})
 	if name := example["Name"].(string); name != "example" {
 		t.Errorf("Map nested struct's name field should give example, got: %s", name)
+	}
+}
+
+type NestedMarshaler struct {
+	Name string
+}
+
+func (a *NestedMarshaler) StructsNestedMarshal() interface{} {
+	return a.Name
+}
+
+type Alphabets []string
+
+func (s Alphabets) StructsNestedMarshal() interface{} {
+	return strings.Join(s, ", ")
+}
+
+func TestMap_CustomNestedStructValues(t *testing.T) {
+	type B struct {
+		A    *NestedMarshaler
+		AMap map[string]*NestedMarshaler
+		S    Alphabets
+	}
+
+	a := &NestedMarshaler{Name: "example"}
+
+	b := &B{
+		A: a,
+		AMap: map[string]*NestedMarshaler{
+			"example_key": a,
+		},
+		S: Alphabets([]string{"a", "b", "c"}),
+	}
+
+	m := Map(b)
+
+	if typ := reflect.TypeOf(m).Kind(); typ != reflect.Map {
+		t.Errorf("Map should return a map type, got: %v", typ)
+	}
+
+	name, ok := m["A"].(string)
+	if !ok {
+		t.Errorf("Nested type of map should be of type string, have %T", m["A"])
+	}
+	if name != "example" {
+		t.Errorf("Map nested struct's name field should give example, got: %s", name)
+	}
+
+	in, ok := m["AMap"].(map[string]interface{})
+	if !ok {
+		t.Errorf("Nested type of map should be of type map[string]interface{}, have %T", m["AMap"])
+	}
+	if name := in["example_key"].(string); name != "example" {
+		t.Errorf("Map nested struct's name field should give example, got: %s", name)
+	}
+
+	s, ok := m["S"].(string)
+	if !ok {
+		t.Errorf("Nested type of map should be of type string, have %T", m["S"])
+	}
+	if s != "a, b, c" {
+		t.Errorf("Map nested struct's name field should give example, got: %s", s)
 	}
 }
 

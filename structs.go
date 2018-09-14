@@ -504,9 +504,23 @@ func Name(s interface{}) string {
 	return New(s).Name()
 }
 
+// StructsNestedMarshaler is the interface implemented by types that
+// can marshal themselves.
+type StructsNestedMarshaler interface {
+	StructsNestedMarshal() interface{}
+}
+
+var (
+	structsNestedMarshaler = reflect.TypeOf(new(StructsNestedMarshaler)).Elem()
+)
+
 // nested retrieves recursively all types for the given value and returns the
 // nested value.
 func (s *Struct) nested(val reflect.Value) interface{} {
+	if val.Type().Implements(structsNestedMarshaler) {
+		return val.Interface().(StructsNestedMarshaler).StructsNestedMarshal()
+	}
+
 	var finalVal interface{}
 
 	v := reflect.ValueOf(val.Interface())
