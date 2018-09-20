@@ -17,9 +17,10 @@ var (
 // Struct encapsulates a struct type to provide several high level functions
 // around the struct.
 type Struct struct {
-	raw     interface{}
-	value   reflect.Value
-	TagName string
+	raw              interface{}
+	value            reflect.Value
+	TagName          string
+	FlattenAnonymous bool
 }
 
 // New returns a new *Struct with the struct s. It panics if the s's kind is
@@ -139,7 +140,7 @@ func (s *Struct) FillMap(out map[string]interface{}) {
 			continue
 		}
 
-		if isSubStruct && (tagOpts.Has("flatten")) {
+		if isSubStruct && (tagOpts.Has("flatten") || (field.Anonymous && s.FlattenAnonymous)) {
 			for k := range finalVal.(map[string]interface{}) {
 				out[k] = finalVal.(map[string]interface{})[k]
 			}

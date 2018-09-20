@@ -612,6 +612,32 @@ func TestMap_FlatnestedOverwrite(t *testing.T) {
 	}
 }
 
+func TestMap_FlattenAnonymous(t *testing.T) {
+	type A struct {
+		ID uint
+	}
+	a := A{ID: 10}
+
+	type B struct {
+		A
+		Name string
+	}
+	b := &B{A: a, Name: "bName"}
+
+	s := New(b)
+
+	m := s.Map()
+	if _, exist := m["A"]; !exist {
+		t.Error("Embedded A struct without tag flatten has to be nested in the map")
+	}
+
+	s.FlattenAnonymous = true
+	m = s.Map()
+	if _, exist := m["ID"]; !exist {
+		t.Error("Embedded A struct without tag flatten has to be flat in the map")
+	}
+}
+
 func TestMap_TimeField(t *testing.T) {
 	type A struct {
 		CreatedAt time.Time
