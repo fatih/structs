@@ -14,6 +14,10 @@ var (
 	DefaultTagName = "structs" // struct's field default tag name
 )
 
+type Mapper interface {
+	Map(TagName string) map[string]interface{}
+}
+
 // Struct encapsulates a struct type to provide several high level functions
 // around the struct.
 type Struct struct {
@@ -79,6 +83,11 @@ func New(s interface{}) *Struct {
 // Note that only exported fields of a struct can be accessed, non exported
 // fields will be neglected.
 func (s *Struct) Map() map[string]interface{} {
+	val := s.value.Interface()
+	if mapper, ok := val.(Mapper); ok {
+		return mapper.Map(s.TagName)
+	}
+
 	out := make(map[string]interface{})
 	s.FillMap(out)
 	return out
@@ -443,6 +452,9 @@ func strctVal(s interface{}) reflect.Value {
 // Map converts the given struct to a map[string]interface{}. For more info
 // refer to Struct types Map() method. It panics if s's kind is not struct.
 func Map(s interface{}) map[string]interface{} {
+	if mapper, ok := s.(Mapper); ok {
+		return mapper.Map(DefaultTagName)
+	}
 	return New(s).Map()
 }
 
@@ -516,9 +528,14 @@ func (s *Struct) nested(val reflect.Value) interface{} {
 
 	switch v.Kind() {
 	case reflect.Struct:
-		n := New(val.Interface())
-		n.TagName = s.TagName
-		m := n.Map()
+		var m map[string]interface{}
+		if mapper, ok := val.Interface().(Mapper); ok {
+			m = mapper.Map(s.TagName)
+		} else {
+			n := New(val.Interface())
+			n.TagName = s.TagName
+			m = n.Map()
+		}
 
 		// do not add the converted value if there are no exported fields, ie:
 		// time.Time
