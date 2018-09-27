@@ -582,7 +582,6 @@ func TestMap_Flatnested(t *testing.T) {
 	if !reflect.DeepEqual(m, expectedMap) {
 		t.Errorf("The exprected map %+v does't correspond to %+v", expectedMap, m)
 	}
-
 }
 
 func TestMap_FlatnestedOverwrite(t *testing.T) {
@@ -874,6 +873,41 @@ func TestNames(t *testing.T) {
 	}
 
 	for _, val := range []string{"A", "B", "C"} {
+		if !inSlice(val) {
+			t.Errorf("Names should have the value %v", val)
+		}
+	}
+}
+
+func TestFlattenNames(t *testing.T) {
+	type A struct {
+		Name string
+	}
+	a := A{Name: "example"}
+
+	type B struct {
+		A `structs:",flatten"`
+		C int
+	}
+	b := &B{C: 123}
+	b.A = a
+
+	s := FlattenNames(b)
+
+	if len(s) != 2 {
+		t.Errorf("FlattenNames should return a slice of len 2, got: %d", len(s))
+	}
+
+	inSlice := func(val string) bool {
+		for _, v := range s {
+			if reflect.DeepEqual(v, val) {
+				return true
+			}
+		}
+		return false
+	}
+
+	for _, val := range []string{"Name", "C"} {
 		if !inSlice(val) {
 			t.Errorf("Names should have the value %v", val)
 		}

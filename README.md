@@ -78,6 +78,7 @@ m := s.Map()              // Get a map[string]interface{}
 v := s.Values()           // Get a []interface{}
 f := s.Fields()           // Get a []*Field
 n := s.Names()            // Get a []string
+n := s.FlattenNames()     // Get a []string but flatten underlying struct
 f := s.Field(name)        // Get a *Field based on the given field name
 f, ok := s.FieldOk(name)  // Get a *Field based on the given field name
 n := s.Name()             // Get the struct name
@@ -151,6 +152,26 @@ for _, f := range s.Fields() {
 		fmt.Printf("is zero : %+v\n", f.IsZero())
 	}
 }
+```
+
+### You can add a second omit string in Structs
+```go
+	 s := New(x)
+     s.CustomOmitTag = "-readonly"
+```
+example:
+
+```go
+     Field is ignored by this call with parameter "-readonly"
+     Field bool `structs:"-readonly"`
+```
+
+
+### A tag value with the content of "pstring" convert a *string to string to get the value. Example:
+
+```go
+   // The value will be output *Field
+   Field *string `structs:"field,string"`
 ```
 
 ## Credits

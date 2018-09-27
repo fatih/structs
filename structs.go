@@ -3,7 +3,6 @@ package structs
 
 import (
 	"fmt"
-
 	"reflect"
 )
 
@@ -17,9 +16,10 @@ var (
 // Struct encapsulates a struct type to provide several high level functions
 // around the struct.
 type Struct struct {
-	raw     interface{}
-	value   reflect.Value
-	TagName string
+	raw           interface{}
+	value         reflect.Value
+	TagName       string
+	CustomOmitTag string
 }
 
 // New returns a new *Struct with the struct s. It panics if the s's kind is
@@ -45,6 +45,18 @@ func New(s interface{}) *Struct {
 //
 //   // Field is ignored by this package.
 //   Field bool `structs:"-"`
+//
+// You can add a second omit string in Structs
+//	// s := New(x)
+//  // s.CustomOmitTag = "-readonly"
+//  // Field is ignored by this call with parameter "-readonly"
+//   Field bool `structs:"-readonly"`
+//
+//
+// A tag value with the content of "pstring" convert a *string to string to get the value. Example:
+//
+//   // The value will be output *value
+//   Field *string `structs:"field,string"`
 //
 // A tag value with the content of "string" uses the stringer to get the value. Example:
 //
@@ -98,7 +110,6 @@ func (s *Struct) FillMap(out map[string]interface{}) {
 		val := s.value.FieldByName(name)
 		isSubStruct := false
 		var finalVal interface{}
-
 		tagName, tagOpts := parseTag(field.Tag.Get(s.TagName))
 		if tagName != "" {
 			name = tagName
@@ -136,6 +147,18 @@ func (s *Struct) FillMap(out map[string]interface{}) {
 			if ok {
 				out[name] = s.String()
 			}
+			continue
+		}
+
+		if tagOpts.Has("pstring") {
+			zero := reflect.Zero(val.Type()).Interface()
+			current := val.Interface()
+
+			if reflect.DeepEqual(current, zero) {
+				out[name] = ""
+				continue
+			}
+			out[name] = *((finalVal).(*string))
 			continue
 		}
 
@@ -255,6 +278,60 @@ func getFields(v reflect.Value, tagName string) []*Field {
 		field := t.Field(i)
 
 		if tag := field.Tag.Get(tagName); tag == "-" {
+			continue
+		}
+
+		f := &Field{
+			field: field,
+			value: v.FieldByName(field.Name),
+		}
+
+		fields = append(fields, f)
+
+	}
+
+	return fields
+}
+
+// Names returns a slice of flattened field names. A struct tag with the content of "-"
+// ignores the checking of that particular field. Example:
+//
+//   // Field is ignored by this package.
+//   Field bool `structs:"-"`
+//
+// It panics if s's kind is not struct.
+func (s *Struct) FlattenNames() []string {
+	fields := getFlattenFields(s.value, s.TagName)
+
+	names := make([]string, len(fields))
+
+	for i, field := range fields {
+		names[i] = field.Name()
+	}
+
+	return names
+}
+
+func getFlattenFields(v reflect.Value, tagName string) []*Field {
+	if v.Kind() == reflect.Ptr {
+		v = v.Elem()
+	}
+
+	t := v.Type()
+
+	var fields []*Field
+
+	for i := 0; i < t.NumField(); i++ {
+		field := t.Field(i)
+
+		fieldTagName, tagOpts := parseTag(field.Tag.Get(tagName))
+
+		if fieldTagName == "-" {
+			continue
+		}
+		if tagOpts.Has("flatten") {
+			tempf := getFlattenFields(v.FieldByName(field.Name), fieldTagName)
+			fields = append(fields, tempf...)
 			continue
 		}
 
@@ -415,7 +492,8 @@ func (s *Struct) structFields() []reflect.StructField {
 		}
 
 		// don't check if it's omitted
-		if tag := field.Tag.Get(s.TagName); tag == "-" {
+		tag, tagOpts := parseTag(field.Tag.Get(s.TagName))
+		if tag == "-" || tagOpts.Has(s.CustomOmitTag) {
 			continue
 		}
 
@@ -470,6 +548,12 @@ func Names(s interface{}) []string {
 	return New(s).Names()
 }
 
+// Names returns a slice of field names. For more info refer to Struct types
+// Names() method.  It panics if s's kind is not struct.
+func FlattenNames(s interface{}) []string {
+	return New(s).FlattenNames()
+}
+
 // IsZero returns true if all fields is equal to a zero value. For more info
 // refer to Struct types IsZero() method.  It panics if s's kind is not struct.
 func IsZero(s interface{}) bool {
@@ -518,6 +602,7 @@ func (s *Struct) nested(val reflect.Value) interface{} {
 	case reflect.Struct:
 		n := New(val.Interface())
 		n.TagName = s.TagName
+		n.CustomOmitTag = s.CustomOmitTag
 		m := n.Map()
 
 		// do not add the converted value if there are no exported fields, ie:
