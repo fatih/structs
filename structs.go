@@ -58,6 +58,12 @@ func New(s interface{}) *Struct {
 //   // The FieldStruct's fields will be flattened into the output map.
 //   FieldStruct time.Time `structs:",flatten"`
 //
+// A tag value with the option of "values" used in a struct or slice-of-struct field is to
+// replace the map with an array of its values. Example:
+//
+//   // The FieldStruct's values will be placed into the output slice.
+//   FieldStruct http.Request `structs:",values"`
+//
 // A tag value with the option of "omitnested" stops iterating further if the type
 // is a struct. Example:
 //
@@ -97,6 +103,7 @@ func (s *Struct) FillMap(out map[string]interface{}) {
 		name := field.Name
 		val := s.value.FieldByName(name)
 		isSubStruct := false
+		isSubSlice := false
 		var finalVal interface{}
 
 		tagName, tagOpts := parseTag(field.Tag.Get(s.TagName))
@@ -124,6 +131,8 @@ func (s *Struct) FillMap(out map[string]interface{}) {
 			}
 
 			switch v.Kind() {
+			case reflect.Slice:
+				isSubSlice = true
 			case reflect.Map, reflect.Struct:
 				isSubStruct = true
 			}
@@ -143,6 +152,30 @@ func (s *Struct) FillMap(out map[string]interface{}) {
 			for k := range finalVal.(map[string]interface{}) {
 				out[k] = finalVal.(map[string]interface{})[k]
 			}
+		} else if isSubStruct && tagOpts.Has("values") {
+			if _, ok := finalVal.(map[string]interface{}); ok {
+				var values []interface{}
+				for _, v := range finalVal.(map[string]interface{}) {
+					values = append(values, v)
+				}
+				finalVal = values
+			}
+			out[name] = finalVal
+		} else if isSubSlice && tagOpts.Has("values") {
+			if _, ok := finalVal.([]interface{}); ok {
+				var values []interface{}
+				for _, s := range finalVal.([]interface{}) {
+					if _, ok := s.(map[string]interface{}); ok {
+						var vals []interface{}
+						for _, v := range s.(map[string]interface{}) {
+							vals = append(vals, v)
+						}
+						values = append(values, vals)
+					}
+				}
+				finalVal = values
+			}
+			out[name] = finalVal
 		} else {
 			out[name] = finalVal
 		}
