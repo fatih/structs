@@ -2,6 +2,7 @@
 package structs
 
 import (
+	"errors"
 	"fmt"
 
 	"reflect"
@@ -14,12 +15,18 @@ var (
 	DefaultTagName = "structs" // struct's field default tag name
 )
 
+type EncodeHookFunc interface{}
+
+type EncodeHookFuncType func(reflect.Type, interface{}) (interface{}, error)
+type EncodeHookFuncKind func(reflect.Kind, interface{}) (interface{}, error)
+
 // Struct encapsulates a struct type to provide several high level functions
 // around the struct.
 type Struct struct {
-	raw     interface{}
-	value   reflect.Value
-	TagName string
+	raw        interface{}
+	value      reflect.Value
+	TagName    string
+	EncodeHook EncodeHookFunc
 }
 
 // New returns a new *Struct with the struct s. It panics if the s's kind is
@@ -504,12 +511,72 @@ func Name(s interface{}) string {
 	return New(s).Name()
 }
 
+// typedEncodeHook takes a raw EncodeHookFunc (an interface{}) and turns
+// it into the proper EncodeHookFunc type, such as EncodeHookFuncType.
+func typedEncodeHook(h EncodeHookFunc) EncodeHookFunc {
+	// Create variables here so we can reference them with the reflect pkg
+	var f1 EncodeHookFuncType
+	var f2 EncodeHookFuncKind
+
+	// Fill in the variables into this interface and the rest is done
+	// automatically using the reflect package.
+	potential := []interface{}{f1, f2}
+
+	v := reflect.ValueOf(h)
+	vt := v.Type()
+	for _, raw := range potential {
+		pt := reflect.ValueOf(raw).Type()
+		if vt.ConvertibleTo(pt) {
+			return v.Convert(pt).Interface()
+		}
+	}
+
+	return nil
+}
+
+// EncodeHookExec executes the given decode hook. This should be used
+// since it'll naturally degrade to the older backwards compatible EncodeHookFunc
+// that took reflect.Kind instead of reflect.Type.
+func EncodeHookExec(raw EncodeHookFunc, from reflect.Type, data interface{}) (interface{}, error) {
+	// Build our arguments that reflect expects
+	argVals := make([]reflect.Value, 2)
+	argVals[0] = reflect.ValueOf(from)
+	argVals[1] = reflect.ValueOf(data)
+
+	switch f := typedEncodeHook(raw).(type) {
+	case EncodeHookFuncType:
+		return f(from, data)
+	case EncodeHookFuncKind:
+		return f(from.Kind(), data)
+	default:
+		return nil, errors.New("invalid decode hook signature")
+	}
+}
+
 // nested retrieves recursively all types for the given value and returns the
 // nested value.
 func (s *Struct) nested(val reflect.Value) interface{} {
 	var finalVal interface{}
 
 	v := reflect.ValueOf(val.Interface())
+
+	if s.EncodeHook != nil {
+		if !v.IsValid() {
+			// Fetching type of nil value
+			tmp := ((interface{})(nil))
+			v = reflect.ValueOf(&tmp)
+		}
+		out, err := EncodeHookExec(s.EncodeHook, v.Type(), val.Interface())
+		if err == nil {
+			if out == nil {
+				out = &out
+			} else {
+				val = reflect.ValueOf(out)
+				v = reflect.ValueOf(val.Interface())
+			}
+		}
+	}
+
 	if v.Kind() == reflect.Ptr {
 		v = v.Elem()
 	}
@@ -518,6 +585,7 @@ func (s *Struct) nested(val reflect.Value) interface{} {
 	case reflect.Struct:
 		n := New(val.Interface())
 		n.TagName = s.TagName
+		n.EncodeHook = s.EncodeHook
 		m := n.Map()
 
 		// do not add the converted value if there are no exported fields, ie:
