@@ -113,6 +113,65 @@ func TestMap_Tag(t *testing.T) {
 
 }
 
+func TestMap_Indirect(t *testing.T) {
+	aVal := "a-value"
+	bVal := ""
+	cVal := 2
+	dVal := 0
+	eVal := true
+	var fVal *int
+	var T = struct {
+		A *string `structs:",indirect"`
+		B *string `structs:",indirect"` // Empty value should be included
+		C *int    `structs:",indirect"`
+		D *int    `structs:",indirect,omitempty"` // Empty value should be omitted
+		E *bool   `structs:",indirect"`
+		F *int    `structs:",indirect"` // nil pointer, should be omitted
+	}{
+		A: &aVal,
+		B: &bVal,
+		C: &cVal,
+		D: &dVal,
+		E: &eVal,
+		F: fVal,
+	}
+
+	a := Map(T)
+
+	inMap := func(val interface{}) bool {
+		for _, v := range a {
+			if reflect.DeepEqual(v, val) {
+				return true
+			}
+		}
+
+		return false
+	}
+
+	notInMap := func(val interface{}) bool {
+		for _, v := range a {
+			if reflect.DeepEqual(v, val) {
+				return false
+			}
+		}
+
+		return true
+	}
+
+	for _, val := range []interface{}{"a-value", "", 2, true} {
+		if !inMap(val) {
+			t.Errorf("Map should have the value %v", val)
+		}
+	}
+
+	for _, val := range []interface{}{0, fVal} {
+		if !notInMap(val) {
+			t.Errorf("Map should not have the value %v", val)
+		}
+	}
+
+}
+
 func TestMap_CustomTag(t *testing.T) {
 	var T = struct {
 		A string `json:"x"`
