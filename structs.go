@@ -399,6 +399,25 @@ func (s *Struct) Name() string {
 	return s.value.Type().Name()
 }
 
+// structFieldsCount returns the count of exported struct fields for a given s struct.
+func (s *Struct) structFieldsCount() int {
+	t := s.value.Type()
+
+	var ct int
+
+	for i := 0; i < t.NumField(); i++ {
+		field := t.Field(i)
+		// we can't access the value of unexported fields
+		if field.PkgPath != "" {
+			continue
+		}
+
+		ct++
+	}
+
+	return ct
+}
+
 // structFields returns the exported struct fields for a given s struct. This
 // is a convenient helper method to avoid duplicate code in some of the
 // functions.
@@ -518,14 +537,12 @@ func (s *Struct) nested(val reflect.Value) interface{} {
 	case reflect.Struct:
 		n := New(val.Interface())
 		n.TagName = s.TagName
-		m := n.Map()
-
 		// do not add the converted value if there are no exported fields, ie:
 		// time.Time
-		if len(m) == 0 {
-			finalVal = val.Interface()
+		if n.structFieldsCount() > 0 {
+			finalVal = n.Map()
 		} else {
-			finalVal = m
+			finalVal = val.Interface()
 		}
 	case reflect.Map:
 		// get the element type of the map
